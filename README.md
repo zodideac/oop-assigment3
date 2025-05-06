@@ -73,7 +73,7 @@ oop-assignment3/
 ## 👥 Contributors
 This project was developed as part of **Object-Oriented Programming Assignment 3** by:
 - [Nguyen Hung](https://github.com/zodideac)
-- [Nguyen Chi Bao](https://github.com/undefined)
+- [Nguyen Chi Bao](https://github.com/accban2006)
 
 ## 📝 Examiner Notes
 - ✅ Implements **encapsulation, inheritance, and polymorphism**.  
