@@ -2,7 +2,7 @@ public class Product{
     protected String proId;
     protected String proModel;
     protected String proCategory;
-    protected Strimg proName;
+    protected String proName;
     private double proCurrentPrice;
     private double proRawPrice;
     private double proDiscount;
@@ -39,7 +39,8 @@ public class Product{
     public double proCurrentPrice() {
         return proCurrentPrice;
     }
-    public double proRawPrice() {        return proRawPrice;
+    public double proRawPrice() {        
+        return proRawPrice;
     }
     public double proDiscount() {
         return proDiscount;
