@@ -1,8 +1,8 @@
-ublic class User {
+public class User {
     protected String userID;
     protected String userName;
     protected String userPassword;
-    protected Strimg userRegisterTime;
+    protected String userRegisterTime;
     protected String userRole;
 
 
@@ -35,9 +35,9 @@ ublic class User {
     }
     public User(){
         this.userID = "u_1234567890";
-        this.userName = userName
-        this.userPassword = userPassword
-        this.userRegisterTime = userRegisterTime
+        this.userName = userName;
+        this.userPassword = userPassword;
+        this.userRegisterTime = userRegisterTime;
         this.userRole = "Customer";
 
     }
