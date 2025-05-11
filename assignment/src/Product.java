@@ -4,47 +4,64 @@ public class Product{
     protected String proCategory;
     protected Strimg proName;
     private double proCurrentPrice;
+    private double proRawPrice;
+    private double proDiscount;
+    private double proLikesDiscount;
 
 
-    public Admin(String userID, String userName, String userPassword, String userRegisterTime, String userRole) {
-        this.userID = userID;
-        this.userName = userName;
-        this.userPassword = userPassword;
-        this.userRegisterTime = userRegisterTime;
-        this.userRole = userRole;
+    public Product(String proID, String proModel, String proCategory, String proName, double proCurrentPrice, double proRawPrice, double proDiscount, double proLikesDiscount) {
+        this.proID = proID;
+        this.proModel = proModel;
+        this.proCategory = proCategory;
+        this.proName = proName;
+        this.proCurrentPrice = proCurrentPrice;
+        this.proRawPrice = proRawPrice;
+        this.proDiscount = proDiscount;
+        this.proLikesDiscount = proLikesDiscount;
     }
 
-    public String userID() {
-        return userID;
+    public String proID() {
+        return proID;
     }
 
-    public String userName(){
-        return userName;
+    public String proModel(){
+        return proModel;
     }
 
-    public String userPassword() {
-        return userPassword;
+    public String proCategory() {
+        return proCategory;
     }
 
-    public double userRegisterTime() {
-        return userRegisterTime;
+    public double proName() {
+        return proName;
     }
 
-    public String userRole() {
-        return userRole;
+    public double proCurrentPrice() {
+        return proCurrentPrice;
     }
-    public User(){
-        this.userID = "u_1234567890";
-        this.userName = userName
-        this.userPassword = userPassword
-        this.userRegisterTime = userRegisterTime
-        this.userRole = "Admin";
-
+    public double proRawPrice() {        return proRawPrice;
+    }
+    public double proDiscount() {
+        return proDiscount;
+    }
+    public double proLikesDiscount() {
+        return proLikesDiscount;
+    }
+    public Product(){
+        this.proID = proID;
+        this.proModel = proModel;
+        this.proCategory = proCategory;
+        this.proName = proName;
+        this.proCurrentPrice = proCurrentPrice;
+        this.proRawPrice = proRawPrice;
+        this.proDiscount = proDiscount;
+        this.proLikesDiscount = proLikesDiscount;
     }
 
     @Override
     public String toString() {
-        return "UserID: " + userID + "\nuserName: " + userName + "\nuserPassword: " + userPassword
-                + "\nuserRegisterTime: " + userRegisterTime + "\nuserRole:" + userRole;
+        return "ProId: " + proID + "\nproModel: " + proModel + "\nproCategory: " + proCategory
+                + "\nproName: " + proName + "\nproCurrentPrice:" + proCurrentPrice + "\nproRawPrice" + proRawPrice + "\nproDiscount" +proDiscount
+                + "\nproLikesDiscount" + proLikesDiscount;
     }
 }
