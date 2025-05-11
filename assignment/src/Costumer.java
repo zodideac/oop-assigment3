@@ -2,7 +2,7 @@ public class Costumer{
     protected String userID;
     protected String userName;
     protected String userPassword;
-    protected Strimg userRegisterTime;
+    protected String userRegisterTime;
     protected String userRole;
     protected String userEmail;
     protected String userMobile;
