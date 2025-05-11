@@ -1,8 +1,8 @@
-ublic class Admin{
+public class Admin{
     protected String userID;
     protected String userName;
     protected String userPassword;
-    protected Strimg userRegisterTime;
+    protected String userRegisterTime;
     protected String userRole;
 
 
