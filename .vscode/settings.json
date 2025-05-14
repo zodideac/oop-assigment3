@@ -1,0 +1,6 @@
+{
+  "java.project.referencedLibraries": [
+    "lib/json.jar",
+    "assignment/lib/json-20250107.jar"
+  ]
+}
