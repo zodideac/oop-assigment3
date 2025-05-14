@@ -1,7 +1,7 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Costumer{
+public class Customer extends User{
     protected String userID;
     protected String userName;
     protected String userPassword;
@@ -10,7 +10,7 @@ public class Costumer{
     protected String userEmail;
     protected String userMobile;
 
-    public Costumer(String userID, String userName, String userPassword, String userRegisterTime, String userRole, String userEmail,String userMobile){
+    public Customer(String userID, String userName, String userPassword, String userRegisterTime, String userRole, String userEmail,String userMobile) {
         this.userID = userID;
         this.userName = userName;
         this.userPassword = userPassword;
@@ -32,7 +32,7 @@ public class Costumer{
         return userPassword;
     }
 
-    public double userRegisterTime() {
+    public String userRegisterTime() {
         return userRegisterTime;
     }
 
@@ -46,16 +46,14 @@ public class Costumer{
         return userMobile;
     }
 
-
-    public User(){
+    public Customer() {
         this.userID = "u_1234567890";
-         this.userName = "Default UserName";
+        this.userName = "Default UserName";
         this.userPassword = "Default Password";
-         this.userRegisterTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
+        this.userRegisterTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
         this.userRole = "Customer";
-        this.userEmail = "user email";
-        this.userMobile = "user mobile";
-
+        this.userEmail = "User email";
+        this.userMobile = "User mobile";
     }
 
     @Override
