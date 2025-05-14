@@ -76,6 +76,30 @@ public class CustomerOperation {
         return writeUserToFile(newUser);
     }
 
+    public class CustomerListResult {
+        private List<Customer> customers;
+        private int currentPage;
+        private int totalPages;
+
+        public CustomerListResult(List<Customer> customers, int currentPage, int totalPages) {
+            this.customers = customers;
+            this.currentPage = currentPage;
+            this.totalPages = totalPages;
+        }
+
+        public List<Customer> getCustomers() {
+            return customers;
+        }
+
+        public int getCurrentPage() {
+            return currentPage;
+        }
+
+        public int getTotalPages() {
+            return totalPages;
+        }
+    }
+
     public boolean updateProfile(String attributeName, String value, Customer customerObject) {
         List<String> updatedUsers = new ArrayList<>();
         boolean updated = false;
@@ -180,30 +204,6 @@ public class CustomerOperation {
         } catch (IOException e) {
             System.out.println("Failed to update file: " + e.getMessage());
             return false;
-        }
-    }
-
-    public class CustomerListResult {
-        private List<Customer> customers;
-        private int currentPage;
-        private int totalPages;
-
-        public CustomerListResult(List<Customer> customers, int currentPage, int totalPages) {
-            this.customers = customers;
-            this.currentPage = currentPage;
-            this.totalPages = totalPages;
-        }
-
-        public List<Customer> getCustomers() {
-            return customers;
-        }
-
-        public int getCurrentPage() {
-            return currentPage;
-        }
-
-        public int getTotalPages() {
-            return totalPages;
         }
     }
 }
