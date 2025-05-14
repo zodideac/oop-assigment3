@@ -65,8 +65,9 @@ oop-assignment3/
 │   ├── operations/    # Database handling (Singleton pattern)
 │   ├── main/          # Main control logic
 │   ├── io/            # Input/Output interactions
+│── data/              # Store sample data
+│── lib/               # Store Dependencies 
 │── bin/               # Compiled Java files
-│── test/              # Unit test cases
 │── README.md          # Documentation
 ```
 
