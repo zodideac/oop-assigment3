@@ -4,14 +4,12 @@ import org.json.JSONObject;
 
 public class AdminOperation {
     private static AdminOperation instance;
-    private static final String FILE_PATH = "./data/admin.txt";
+    private static final String FILE_PATH = "data/users.txt";
 
     private AdminOperation() {}
 
     public static AdminOperation getInstance() {
-        if (instance == null) {
-            instance = new AdminOperation();
-        }
+        if (instance == null) { instance = new AdminOperation(); }
         return instance;
     }
 
@@ -34,7 +32,7 @@ public class AdminOperation {
             writer.newLine();
             System.out.println("Admin account registered successfully.");
         } catch (IOException e) {
-            System.out.println("Error registering admin: " + e.getMessage());
+            System.out.println("Failed to register admin: " + e.getMessage());
         }
     }
 
@@ -42,7 +40,7 @@ public class AdminOperation {
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             return reader.readLine() != null;
         } catch (IOException e) {
-            System.out.println("Error checking admin existence: " + e.getMessage());
+            System.out.println("Failed to check admin existence: " + e.getMessage());
             return false;
         }
     }
