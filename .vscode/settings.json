@@ -1,6 +1,17 @@
 {
   "java.project.referencedLibraries": [
     "lib/json.jar",
-    "assignment/lib/json-20250107.jar"
+    "assignment/lib/json-20250107.jar",
+    "assignment/lib/javafx.base.jar",
+    "assignment/lib/javafx.controls.jar",
+    "assignment/lib/javafx.fxml.jar",
+    "assignment/lib/javafx.graphics.jar",
+    "assignment/lib/javafx.media.jar",
+    "assignment/lib/javafx.swing.jar",
+    "assignment/lib/javafx.web.jar",
+    "assignment/lib/javafx-swt.jar",
+    "assignment/lib/jdk.jsobject.jar",
+    "assignment/lib/jfx.incubator.input.jar",
+    "assignment/lib/jfx.incubator.richtext.jar"
   ]
 }
