@@ -1,3 +1,6 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Admin{
     protected String userID;
     protected String userName;
@@ -33,11 +36,11 @@ public class Admin{
     public String userRole() {
         return userRole;
     }
-    public User(){
+    public Admin(){
         this.userID = "u_1234567890";
-        this.userName = userName
-        this.userPassword = userPassword
-        this.userRegisterTime = userRegisterTime
+        this.userName = "Default UserName";
+        this.userPassword = "Default Password";
+        this.userRegisterTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
         this.userRole = "Admin";
 
     }
