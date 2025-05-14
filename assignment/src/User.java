@@ -29,7 +29,7 @@ public class User {
         return userPassword;
     }
 
-    public double userRegisterTime() {
+    public String userRegisterTime() {
         return userRegisterTime;
     }
 

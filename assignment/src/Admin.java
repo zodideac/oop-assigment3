@@ -1,7 +1,7 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Admin{
+public class Admin extends User{
     protected String userID;
     protected String userName;
     protected String userPassword;
@@ -29,20 +29,19 @@ public class Admin{
         return userPassword;
     }
 
-    public double userRegisterTime() {
+    public String userRegisterTime() {
         return userRegisterTime;
     }
 
     public String userRole() {
         return userRole;
     }
-    public Admin(){
+    public Admin() {
         this.userID = "u_1234567890";
         this.userName = "Default UserName";
         this.userPassword = "Default Password";
         this.userRegisterTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
         this.userRole = "Admin";
-
     }
 
     @Override

@@ -1,5 +1,5 @@
 public class Product{
-    protected String proId;
+    protected String proID;
     protected String proModel;
     protected String proCategory;
     protected String proName;
@@ -32,14 +32,15 @@ public class Product{
         return proCategory;
     }
 
-    public double proName() {
+    public String proName() {
         return proName;
     }
 
     public double proCurrentPrice() {
         return proCurrentPrice;
     }
-    public double proRawPrice() {        return proRawPrice;
+    public double proRawPrice() {        
+        return proRawPrice;
     }
     public double proDiscount() {
         return proDiscount;
@@ -48,14 +49,14 @@ public class Product{
         return proLikesDiscount;
     }
     public Product(){
-         this.proId = "default_proid";
+         this.proID = "default_proid";
         this.proModel = "default_promodel";
         this.proCategory = "default_procategory";
         this.proName = "default_proname";
         this.proCurrentPrice = 0.0;
         this.proRawPrice = 0.0;
         this.proDiscount = 0.0;
-        this.proLikesCount = 0;
+        this.proLikesDiscount = 0;
     }
 
     @Override

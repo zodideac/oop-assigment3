@@ -5,14 +5,14 @@ public class Order {
     protected String orderID;
     protected String userID;
     protected String proID;
-    protected String ordertime;
+    protected String orderTime;
 
 
-    public Order(String userID, String userName, String userPassword, String userRegisterTime, String userRole) {
-        this.oderID = orderID;
+    public Order(String orderID, String userID, String proID, String orderTime) {
+        this.orderID = orderID;
         this.userID = userID;
         this.proID = proID;
-        this.ordertime = ordertime;
+        this.orderTime = orderTime;
     }
 
     public String orderID(){
@@ -27,19 +27,19 @@ public class Order {
         return proID;
     }
 
-    public String ordertime() {
-        return ordertime;
+    public String orderTime() {
+        return orderTime;
     }
     public Order(){
-        this.orderId = "o_12345";
-        this.userId = "default_user";
-        this.proId = "default_product";
+        this.orderID = "o_12345";
+        this.userID = "default_user";
+        this.proID = "default_product";
         this.orderTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
     }
 
     @Override
     public String toString() {
         return "orderID: " + orderID + "\nuserID: " + userID + "\nproID: " + proID
-                + "\nordertime: " + ordertime;
+                + "\nordertime: " + orderTime;
     }
 }
