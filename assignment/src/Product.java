@@ -39,8 +39,7 @@ public class Product{
     public double proCurrentPrice() {
         return proCurrentPrice;
     }
-    public double proRawPrice() {        
-        return proRawPrice;
+    public double proRawPrice() {        return proRawPrice;
     }
     public double proDiscount() {
         return proDiscount;
@@ -49,14 +48,14 @@ public class Product{
         return proLikesDiscount;
     }
     public Product(){
-        this.proID = proID;
-        this.proModel = proModel;
-        this.proCategory = proCategory;
-        this.proName = proName;
-        this.proCurrentPrice = proCurrentPrice;
-        this.proRawPrice = proRawPrice;
-        this.proDiscount = proDiscount;
-        this.proLikesDiscount = proLikesDiscount;
+         this.proId = "default_proid";
+        this.proModel = "default_promodel";
+        this.proCategory = "default_procategory";
+        this.proName = "default_proname";
+        this.proCurrentPrice = 0.0;
+        this.proRawPrice = 0.0;
+        this.proDiscount = 0.0;
+        this.proLikesCount = 0;
     }
 
     @Override
