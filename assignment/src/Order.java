@@ -1,3 +1,6 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Order {
     protected String orderID;
     protected String userID;
@@ -28,15 +31,15 @@ public class Order {
         return ordertime;
     }
     public Order(){
-        this.oderID = orderID;
-        this.userID = userID;
-        this.proID = proID;
-        this.ordertime = ordertime;
+        this.orderId = "o_12345";
+        this.userId = "default_user";
+        this.proId = "default_product";
+        this.orderTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
     }
 
     @Override
     public String toString() {
-        return "orderID: " + orderIDID + "\nuserID: " + userID + "\nproID: " + proID
+        return "orderID: " + orderID + "\nuserID: " + userID + "\nproID: " + proID
                 + "\nordertime: " + ordertime;
     }
 }
