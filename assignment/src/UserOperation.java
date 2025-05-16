@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 
 public class UserOperation {
   private static UserOperation instance;
@@ -51,9 +52,24 @@ public class UserOperation {
   }
 
   public boolean checkUsernameExist(String userName) {
-    return false; 
-  }
+        File file = new File("data/users.txt");
+        if (!file.exists()) {
+            return false; // No user file found, no existing users
+        }
 
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("\"user_name\":\"" + userName + "\"")) {
+                    return true; // Username found in file
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to read users file: " + e.getMessage());
+        }
+        return false;
+  }
+  
   public boolean validateUsername(String userName) {
     if (userName == null || userName.length() < 5) { return false; }
 
