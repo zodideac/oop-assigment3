@@ -1,0 +1,160 @@
+Sample user data
+{"user_id":"u_0000000001","user_name":"admin","user_password":"^^qwXzRtYuI7PaSd$$","us
+er_register_time":"01-01-2024_09:00:00","user_role":"admin"}
+{"user_id":"u_0000000002","user_name":"john_doe","user_password":"^^aB3cD4eF5gH6i$$","u
+ser_register_time":"15-01-2024_14:30:45","user_role":"customer","user_email":"john.doe@exa
+mple.com","user_mobile":"0412345678"}
+{"user_id":"u_0000000003","user_name":"jane_smith","user_password":"^^pQ7rS8tU9vW0x$$",
+"user_register_time":"22-01-2024_10:15:22","user_role":"customer","user_email":"jane.smith@e
+xample.com","user_mobile":"0423456789"}
+{"user_id":"u_0000000004","user_name":"michael_brown","user_password":"^^jK1lM2nO3pQ4r
+$$","user_register_time":"05-02-2024_16:45:33","user_role":"customer","user_email":"michael.b
+rown@example.com","user_mobile":"0434567890"}
+{"user_id":"u_0000000005","user_name":"emily_davis","user_password":"^^sT5uV6wX7yZ8a$$
+","user_register_time":"12-02-2024_11:20:18","user_role":"customer","user_email":"emily.davis
+@example.com","user_mobile":"0445678901"}
+{"user_id":"u_0000000006","user_name":"david_wilson","user_password":"^^bC9dE0fG1hI2j$$"
+,"user_register_time":"28-02-2024_09:50:57","user_role":"customer","user_email":"david.wilson
+@example.com","user_mobile":"0456789012"}
+{"user_id":"u_0000000007","user_name":"sarah_taylor","user_password":"^^kL3mN4oP5qR6s$
+$","user_register_time":"10-03-2024_15:05:42","user_role":"customer","user_email":"sarah.taylo
+r@example.com","user_mobile":"0467890123"}
+{"user_id":"u_0000000008","user_name":"james_johnson","user_password":"^^tU7vW8xY9zA0
+b$$","user_register_time":"22-03-2024_12:40:29","user_role":"customer","user_email":"james.jo
+hnson@example.com","user_mobile":"0478901234"}
+{"user_id":"u_0000000009","user_name":"olivia_martin","user_password":"^^cD1eF2gH3iJ4k$$"
+,"user_register_time":"05-04-2024_08:25:14","user_role":"customer","user_email":"olivia.martin
+@example.com","user_mobile":"0489012345"}
+{"user_id":"u_0000000010","user_name":"mark_anderson","user_password":"^^lM5nO6pQ7rS8t
+$$","user_register_time":"15-04-2024_17:10:36","user_role":"customer","user_email":"mark.and
+erson@example.com","user_mobile":"0490123456"}
+{"user_id":"u_0000000011","user_name":"manager","user_password":"^^uV9wX0yZ1aB2c$$","u
+ser_register_time":"01-01-2024_10:00:00","user_role":"admin"}
+
+Sample product data
+{"pro_id":"p001","pro_model":"iPhoneX","pro_category":"Smartphone","pro_name":"iPhone X
+64GB","pro_current_price":699.99,"pro_raw_price":999.99,"pro_discount":30.0,"pro_likes_count
+":245}
+{"pro_id":"p002","pro_model":"GalaxyS21","pro_category":"Smartphone","pro_name":"Samsung
+Galaxy S21
+128GB","pro_current_price":749.99,"pro_raw_price":899.99,"pro_discount":16.67,"pro_likes_co
+unt":198}
+{"pro_id":"p003","pro_model":"iPadPro11","pro_category":"Tablet","pro_name":"iPad Pro 11-inch
+256GB","pro_current_price":899.99,"pro_raw_price":999.99,"pro_discount":10.0,"pro_likes_cou
+nt":156}
+{"pro_id":"p004","pro_model":"SurfacePro7","pro_category":"Tablet","pro_name":"Microsoft
+Surface Pro 7
+128GB","pro_current_price":749.99,"pro_raw_price":899.99,"pro_discount":16.67,"pro_likes_co
+unt":122}
+{"pro_id":"p005","pro_model":"MacBookAir","pro_category":"Laptop","pro_name":"MacBook Air
+M1
+256GB","pro_current_price":949.99,"pro_raw_price":1099.99,"pro_discount":13.64,"pro_likes_c
+ount":287}
+{"pro_id":"p006","pro_model":"XPS13","pro_category":"Laptop","pro_name":"Dell XPS 13
+512GB","pro_current_price":1099.99,"pro_raw_price":1299.99,"pro_discount":15.38,"pro_likes_
+count":165}
+{"pro_id":"p007","pro_model":"AirPodsMax","pro_category":"Headphones","pro_name":"Apple
+AirPods
+Max","pro_current_price":479.99,"pro_raw_price":549.99,"pro_discount":12.73,"pro_likes_count"
+:98}
+{"pro_id":"p008","pro_model":"QC45","pro_category":"Headphones","pro_name":"Bose
+QuietComfort
+45","pro_current_price":299.99,"pro_raw_price":349.99,"pro_discount":14.29,"pro_likes_count":
+143}
+{"pro_id":"p009","pro_model":"GalaxyWatch4","pro_category":"Smartwatch","pro_name":"Samsu
+ng Galaxy Watch 4
+44mm","pro_current_price":229.99,"pro_raw_price":279.99,"pro_discount":17.86,"pro_likes_cou
+nt":76}
+{"pro_id":"p010","pro_model":"AppleWatch7","pro_category":"Smartwatch","pro_name":"Apple
+Watch Series 7
+45mm","pro_current_price":399.99,"pro_raw_price":429.99,"pro_discount":6.98,"pro_likes_count
+":187}
+{"pro_id":"p011","pro_model":"PS5","pro_category":"Console","pro_name":"PlayStation 5 Digital
+Edition","pro_current_price":399.99,"pro_raw_price":399.99,"pro_discount":0.0,"pro_likes_count
+":312}
+{"pro_id":"p012","pro_model":"XboxSeriesX","pro_category":"Console","pro_name":"Xbox Series
+X
+1TB","pro_current_price":499.99,"pro_raw_price":499.99,"pro_discount":0.0,"pro_likes_count":2
+74}
+{"pro_id":"p013","pro_model":"NintendoSwitch","pro_category":"Console","pro_name":"Nintendo
+Switch OLED
+Model","pro_current_price":349.99,"pro_raw_price":349.99,"pro_discount":0.0,"pro_likes_count":
+198}
+{"pro_id":"p014","pro_model":"SonyA7IV","pro_category":"Camera","pro_name":"Sony Alpha a7
+IV Mirrorless
+Camera","pro_current_price":2399.99,"pro_raw_price":2499.99,"pro_discount":4.0,"pro_likes_co
+unt":87}
+{"pro_id":"p015","pro_model":"CanonR6","pro_category":"Camera","pro_name":"Canon EOS R6
+Mirrorless
+Camera","pro_current_price":2299.99,"pro_raw_price":2499.99,"pro_discount":8.0,"pro_likes_co
+unt":92}
+{"pro_id":"p016","pro_model":"DJIMini3","pro_category":"Drone","pro_name":"DJI Mini 3
+Pro","pro_current_price":699.99,"pro_raw_price":759.99,"pro_discount":7.89,"pro_likes_count":6
+4}
+{"pro_id":"p017","pro_model":"SonyWF1000XM4","pro_category":"Earbuds","pro_name":"Sony
+WF-1000XM4
+Earbuds","pro_current_price":249.99,"pro_raw_price":279.99,"pro_discount":10.71,"pro_likes_c
+ount":118}
+{"pro_id":"p018","pro_model":"LGC1","pro_category":"TV","pro_name":"LG C1 65-inch OLED 4K
+TV","pro_current_price":1799.99,"pro_raw_price":2499.99,"pro_discount":28.0,"pro_likes_count"
+:153}
+{"pro_id":"p019","pro_model":"SamsungQN90A","pro_category":"TV","pro_name":"Samsung
+QN90A 55-inch Neo QLED 4K
+TV","pro_current_price":1299.99,"pro_raw_price":1799.99,"pro_discount":27.78,"pro_likes_coun
+t":127}
+{"pro_id":"p020","pro_model":"SonySRS-XB33","pro_category":"Speaker","pro_name":"Sony
+SRS-XB33 Portable Bluetooth
+Speaker","pro_current_price":99.99,"pro_raw_price":149.99,"pro_discount":33.33,"pro_likes_co
+unt":56}
+
+Sample order data
+{"order_id":"o_00001","user_id":"u_0000000002","pro_id":"p001","order_time":"20-01-2024_09:1
+5:32"}
+{"order_id":"o_00002","user_id":"u_0000000003","pro_id":"p005","order_time":"21-01-2024_14:2
+3:47"}
+{"order_id":"o_00003","user_id":"u_0000000004","pro_id":"p010","order_time":"23-01-2024_11:0
+8:19"}
+{"order_id":"o_00004","user_id":"u_0000000002","pro_id":"p007","order_time":"01-02-2024_16:4
+5:21"}
+{"order_id":"o_00005","user_id":"u_0000000005","pro_id":"p012","order_time":"05-02-2024_10:3
+2:55"}
+{"order_id":"o_00006","user_id":"u_0000000006","pro_id":"p003","order_time":"10-02-2024_13:1
+7:42"}
+{"order_id":"o_00007","user_id":"u_0000000003","pro_id":"p008","order_time":"15-02-2024_08:5
+4:33"}
+{"order_id":"o_00008","user_id":"u_0000000007","pro_id":"p018","order_time":"18-02-2024_17:2
+1:08"}
+{"order_id":"o_00009","user_id":"u_0000000004","pro_id":"p014","order_time":"22-02-2024_12:0
+9:47"}
+{"order_id":"o_00010","user_id":"u_0000000002","pro_id":"p019","order_time":"02-03-2024_15:3
+8:26"}
+{"order_id":"o_00011","user_id":"u_0000000008","pro_id":"p002","order_time":"05-03-2024_09:4
+7:31"}
+{"order_id":"o_00012","user_id":"u_0000000009","pro_id":"p006","order_time":"09-03-2024_14:1
+2:58"}
+{"order_id":"o_00013","user_id":"u_0000000005","pro_id":"p011","order_time":"15-03-2024_11:2
+6:39"}
+{"order_id":"o_00014","user_id":"u_0000000003","pro_id":"p016","order_time":"18-03-2024_16:4
+3:14"}
+{"order_id":"o_00015","user_id":"u_0000000007","pro_id":"p004","order_time":"22-03-2024_10:0
+5:27"}
+{"order_id":"o_00016","user_id":"u_0000000004","pro_id":"p009","order_time":"28-03-2024_13:5
+1:33"}
+{"order_id":"o_00017","user_id":"u_0000000002","pro_id":"p013","order_time":"02-04-2024_09:2
+9:45"}
+{"order_id":"o_00018","user_id":"u_0000000010","pro_id":"p017","order_time":"05-04-2024_15:3
+7:22"}
+{"order_id":"o_00019","user_id":"u_0000000006","pro_id":"p020","order_time":"10-04-2024_12:1
+4:58"}
+{"order_id":"o_00020","user_id":"u_0000000003","pro_id":"p015","order_time":"15-04-2024_17:0
+4:36"}
+{"order_id":"o_00021","user_id":"u_0000000008","pro_id":"p001","order_time":"18-04-2024_10:4
+7:19"}
+{"order_id":"o_00022","user_id":"u_0000000005","pro_id":"p007","order_time":"20-04-2024_14:2
+3:51"}
+{"order_id":"o_00023","user_id":"u_0000000004","pro_id":"p012","order_time":"25-04-2024_11:3
+9:04"}
+{"order_id":"o_00024","user_id":"u_0000000002","pro_id":"p008","order_time":"28-04-2024_16:0
+8:45"}
+{"order_id":"o_00025","user_id":"u_0000000007","pro_id":"p003","order_time":"01-05-2024_09:4
+1:27"}
