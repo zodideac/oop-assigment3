@@ -52,7 +52,7 @@ public class UserOperation {
   }
 
   public boolean checkUsernameExist(String userName) {
-        File file = new File("data/users.txt");
+        File file = new File("./data/users.txt");
         if (!file.exists()) {
             return false; // No user file found, no existing users
         }

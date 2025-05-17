@@ -12,7 +12,7 @@ import javafx.scene.SnapshotParameters;
 
 public class OrderOperation {
     private static OrderOperation instance;
-    private static final String FILE_PATH = "data/orders.txt";
+    private static final String FILE_PATH = "./data/orders.txt";
 
     private OrderOperation() {}
 

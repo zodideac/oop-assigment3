@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 public class AdminOperation {
     private static AdminOperation instance;
-    private static final String FILE_PATH = "data/users.txt";
+    private static final String FILE_PATH = "./data/users.txt";
 
     private AdminOperation() {}
 

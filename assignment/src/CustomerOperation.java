@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public class CustomerOperation {
     private static CustomerOperation instance;
-    private static final String FILE_PATH = "data/users.txt";
+    private static final String FILE_PATH = "./data/users.txt";
 
     private CustomerOperation() {}
 

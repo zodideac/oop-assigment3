@@ -12,6 +12,7 @@
     "assignment/lib/javafx-swt.jar",
     "assignment/lib/jdk.jsobject.jar",
     "assignment/lib/jfx.incubator.input.jar",
-    "assignment/lib/jfx.incubator.richtext.jar"
+    "assignment/lib/jfx.incubator.richtext.jar",
+    "test-lib\\**\\*.jar"
   ]
 }

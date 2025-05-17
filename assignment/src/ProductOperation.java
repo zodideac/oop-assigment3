@@ -11,7 +11,7 @@ import javafx.embed.swing.SwingFXUtils;
 
 public class ProductOperation {
   private static ProductOperation instance;
-  private static final String FILE_PATH = "data/products.txt";
+  private static final String FILE_PATH = "./data/products.txt";
 
   private ProductOperation() {}
 
