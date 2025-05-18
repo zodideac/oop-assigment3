@@ -1,12 +1,14 @@
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class CustomerOperation {
     private static CustomerOperation instance;
-    private static final String FILE_PATH = "./data/users.txt";
-
+    private static final int PAGE_SIZE = 10;
+    private static final String FILE_PATH = "assignment/src/data/users.json";
     private CustomerOperation() {}
 
     public static CustomerOperation getInstance() {
@@ -17,7 +19,6 @@ public class CustomerOperation {
     public boolean validateEmail(String userEmail) {
         return userEmail != null && userEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
     }
-
 
     public boolean validateMobile(String userMobile) {
         return userMobile != null && userMobile.matches("(04|03)\\d{8}");
@@ -32,25 +33,27 @@ public class CustomerOperation {
     }
 
     private String generateUniqueUserId() {
-        return "U_" + System.currentTimeMillis(); 
+        return "U_" + System.currentTimeMillis();
     }
 
     private boolean checkUsernameExist(String userName) {
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+            JSONParser parser = new JSONParser();
+
             while ((line = reader.readLine()) != null) {
-                JSONObject user = new JSONObject(line);
-                if (user.getString("user_name").equals(userName)) {
-                    return true; // Username exists
+                JSONObject user = (JSONObject) parser.parse(line);
+                if (user.get("user_name").toString().equals(userName)) {
+                    return true; 
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to read file: " + e.getMessage());
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to check username existence: " + e.getMessage());
+            e.printStackTrace();
         }
 
-    return false; 
+        return false;
     }
-
 
     public boolean registerCustomer(String userName, String userPassword, String userEmail, String userMobile) {
         if (!validateUsername(userName) || !validatePassword(userPassword) || !validateEmail(userEmail) || !validateMobile(userMobile)) {
@@ -61,43 +64,17 @@ public class CustomerOperation {
             return false;
         }
 
-        String userID = generateUniqueUserId();
-        String registerTime = LocalDateTime.now().toString();
-
-        JSONObject newUser = new JSONObject();
-        newUser.put("user_id", userID);
+        JSONObject newUserJSON = new JSONObject();
+        HashMap<String,Object> newUser = new HashMap<String,Object>();
+        newUser.put("user_id", generateUniqueUserId());
         newUser.put("user_name", userName);
-        newUser.put("user_password", userPassword); 
-        newUser.put("user_register_time", registerTime);
+        newUser.put("user_password", userPassword);
+        newUser.put("user_register_time", LocalDateTime.now().toString());
         newUser.put("user_role", "customer");
         newUser.put("user_email", userEmail);
         newUser.put("user_mobile", userMobile);
 
-        return writeUserToFile(newUser);
-    }
-
-    public class CustomerListResult {
-        private List<Customer> customers;
-        private int currentPage;
-        private int totalPages;
-
-        public CustomerListResult(List<Customer> customers, int currentPage, int totalPages) {
-            this.customers = customers;
-            this.currentPage = currentPage;
-            this.totalPages = totalPages;
-        }
-
-        public List<Customer> getCustomers() {
-            return customers;
-        }
-
-        public int getCurrentPage() {
-            return currentPage;
-        }
-
-        public int getTotalPages() {
-            return totalPages;
-        }
+        return writeUserToFile(newUserJSON);
     }
 
     public boolean updateProfile(String attributeName, String value, Customer customerObject) {
@@ -106,22 +83,26 @@ public class CustomerOperation {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+            JSONParser parser = new JSONParser();
+
             while ((line = reader.readLine()) != null) {
-                JSONObject user = new JSONObject(line);
-                if (user.getString("user_id").equals(customerObject.userID())) { 
-                    user.put(attributeName, value);
-                    updatedUsers.add(user.toString());
+                JSONObject user = (JSONObject) parser.parse(line);
+                if (user.get("user_id").toString().equals(customerObject.getUserId())) {
+                    HashMap<String,Object> userDetails = new HashMap<String,Object>();
+                    userDetails.put(attributeName, value);
+                    updatedUsers.add(user.toJSONString());
                     updated = true;
                 } else {
                     updatedUsers.add(line);
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to read file: " + e.getMessage());
-         return false;
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to update profile: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
 
-        return updated ? writeUsersToFile(updatedUsers) : false;
+        return updated && writeUsersToFile(updatedUsers);
     }
 
     public boolean deleteCustomer(String customerId) {
@@ -130,66 +111,68 @@ public class CustomerOperation {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+            JSONParser parser = new JSONParser();
+
             while ((line = reader.readLine()) != null) {
-                JSONObject user = new JSONObject(line);
-                if (!user.getString("user_id").equals(customerId)) {
+                JSONObject user = (JSONObject) parser.parse(line);
+                if (!user.get("user_id").toString().equals(customerId)) {
                     updatedUsers.add(line);
                 } else {
                     deleted = true;
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to read file: " + e.getMessage());
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to delete customer: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
 
-        return deleted ? writeUsersToFile(updatedUsers) : false;
+        return deleted && writeUsersToFile(updatedUsers);
     }
 
     public CustomerListResult getCustomerList(int pageNumber) {
         List<Customer> customers = new ArrayList<>();
         int totalCustomers = 0;
-        int pageSize = 10;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+            JSONParser parser = new JSONParser();
+
             while ((line = reader.readLine()) != null) {
                 totalCustomers++;
-                if (totalCustomers > (pageNumber - 1) * pageSize && customers.size() < pageSize) {
-                    JSONObject user = new JSONObject(line);
-                    customers.add(new Customer(
-                        user.getString("user_id"),
-                        user.getString("user_name"),
-                        user.getString("user_password"),
-                        user.getString("user_register_time"),
-                        user.getString("user_role"),
-                        user.optString("user_email", ""),
-                        user.optString("user_mobile", "")
-                    ));
+                if (totalCustomers > (pageNumber - 1) * PAGE_SIZE && customers.size() < PAGE_SIZE) {
+                    try {
+                        JSONObject user = (JSONObject) parser.parse(line);
+                        customers.add(new Customer(user));
+                    } catch (ParseException e) {
+                        System.err.println("Failed to parse JSON for a customer: " + e.getMessage());
+                    }
                 }
             }
         } catch (IOException e) {
-            System.out.println("Failed to read file: " + e.getMessage());
+            System.err.println("Failed to read customers: " + e.getMessage());
         }
 
-        return new CustomerListResult(customers, pageNumber, (int) Math.ceil((double) totalCustomers / pageSize));
+        return new CustomerListResult(customers, pageNumber, (int) Math.ceil((double) totalCustomers / PAGE_SIZE));
     }
 
     public void deleteAllCustomers() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            writer.write(""); 
+            writer.write("");
         } catch (IOException e) {
-            System.out.println("Failed to delete all customers: " + e.getMessage());
+            System.err.println("Failed to delete all customers: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private boolean writeUserToFile(JSONObject user) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(user.toString());
+            writer.write(user.toJSONString());
             writer.newLine();
             return true;
         } catch (IOException e) {
-            System.out.println("Failed to write user to file: " + e.getMessage());
+            System.err.println("Failed to write user to file: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -202,8 +185,27 @@ public class CustomerOperation {
             }
             return true;
         } catch (IOException e) {
-            System.out.println("Failed to update file: " + e.getMessage());
+            System.err.println("Failed to update file: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
+
+    public Customer getCustomerById(String customerId) {
+    try (BufferedReader reader = new BufferedReader(new FileReader("./src/users.json"))) {
+        String line;
+        JSONParser parser = new JSONParser();
+
+        while ((line = reader.readLine()) != null) {
+            JSONObject customerJson = (JSONObject) parser.parse(line);
+            if (customerJson.get("customer_id").toString().equals(customerId)) {
+                return new Customer(customerJson); 
+            }
+        }
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to retrieve customer: " + e.getMessage());
+    }
+        return null; 
+    }
+
 }

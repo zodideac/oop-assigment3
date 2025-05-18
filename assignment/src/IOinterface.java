@@ -32,13 +32,13 @@ public class IOinterface {
 
     public void adminMenu() {
         System.out.println("====== Admin Menu ======\n");
-        System.out.println("1. Show products\n2. Add customers\n3. Show customers\n4. Show orders\n 5. Generate test data\n 6. Generate all statistical figures\n 7. Delete all data\n 8. Logout\n");
+        System.out.println("1. Show products\n2. Add customers\n3. Show customers\n4. Show orders\n5. Generate test data\n6. Generate all statistical figures\n7. Delete all data\n8. Logout\n");
         System.out.println("====================\n");
     }
 
     public void customerMenu() {
         System.out.println("====== Customer Menu ======\n");
-        System.out.println("1. Show profile\n2. Update profile\n3. Show products\n 4. Show history orders\n5. Generate all consumption figures\n6. Logout\n");
+        System.out.println("1. Show profile\n2. Update profile\n3. Show products\n4. Show history orders\n5. Generate all consumption figures\n6. Logout\n");
         System.out.println("====================\n");
     }
 

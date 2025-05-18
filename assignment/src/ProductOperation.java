@@ -1,97 +1,59 @@
 import java.io.*;
 import java.util.*;
-import javax.imageio.ImageIO;
-import org.json.*;
-import javafx.scene.chart.*;
-import javafx.scene.image.WritableImage;
-import javafx.scene.SnapshotParameters;
-import javafx.embed.swing.SwingFXUtils;
-
-
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class ProductOperation {
   private static ProductOperation instance;
-  private static final String FILE_PATH = "./data/products.txt";
-
+  private static final String FILE_PATH = "assignment/src/data/products.json";
+  private static final int PAGE_SIZE = 10;
   private ProductOperation() {}
 
   public static ProductOperation getInstance() {
     if (instance == null) { instance = new ProductOperation(); }
-
+            
     return instance;
   }
 
-  public void extractProductsFromFiles() {
-    File sourceFile = new File("data/source_products.txt");
+  public void extractProductsFromFiles(List<String> productFiles) {
+    List<String> extractedProducts = new ArrayList<>();
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
-      BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+    for (String filePath : productFiles) {
+      try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
         String line;
-
         while ((line = reader.readLine()) != null) {
-          writer.write(line);
-          writer.newLine();
+          extractedProducts.add(line);
         }
-
-      System.out.println("Products extracted successfully.");
-    } catch (IOException e) {
-        System.out.println("Failed to extract products: " + e.getMessage());
-      }
-  }
-
-  public class ProductListResult {
-    private List<Product> products;
-    private int currentPage;
-    private int totalPages;
-
-    public ProductListResult(List<Product> products, int currentPage, int totalPages) {
-      this.products = products;
-      this.currentPage = currentPage;
-      this.totalPages = totalPages;
+      } catch (IOException e) {
+          System.err.println("Failed to read file: " + filePath + " - " + e.getMessage());
+        }
     }
 
-    public List<Product> getProducts() {
-      return products;
-    }
-
-    public int getCurrentPage() {
-      return currentPage;
-    }
-
-    public int getTotalPages() {
-      return totalPages;
-    }
+    writeProductsToFile(extractedProducts);
+    System.out.println("Product extraction complete!");
   }
 
   public ProductListResult getProductList(int pageNumber) {
-    List<Product> products = new ArrayList<>();
-    int totalProducts = 0;
-    int pageSize = 10;
+  List<Product> products = new ArrayList<>();
+  int totalProducts = 0;
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        totalProducts++;
+  try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+    String line;
+    JSONParser parser = new JSONParser();
 
-        if (totalProducts > (pageNumber - 1) * pageSize && products.size() < pageSize) {
-          JSONObject productJson = new JSONObject(line);
-          products.add(new Product(
-              productJson.getString("proID"),
-              productJson.getString("proModel"),
-              productJson.getString("proCategory"),
-              productJson.getString("proName"),
-              productJson.getDouble("proCurrentPrice"),
-              productJson.getDouble("proRawPrice"),
-              productJson.getDouble("proDiscount"),
-              productJson.getDouble("proLikesDiscount")
-              ));
-        }
+    while ((line = reader.readLine()) != null) {
+      totalProducts++;
+      JSONObject product = (JSONObject) parser.parse(line);
+      if (products.size() < PAGE_SIZE && totalProducts > (pageNumber - 1) * PAGE_SIZE) {
+        products.add(new Product(product));
       }
-    } catch (IOException e) {
-        System.out.println("Error reading product list: " + e.getMessage());
-      }
+    }
+  } catch (IOException | ParseException e) {
+      System.err.println("Failed to retrieve products: " + e.getMessage());
+    }
 
-        return new ProductListResult(products, pageNumber, (int) Math.ceil((double) totalProducts / pageSize));
+    return new ProductListResult(products, pageNumber, (int) Math.ceil((double) totalProducts / PAGE_SIZE));
   }
 
   public boolean deleteProduct(String productId) {
@@ -100,84 +62,163 @@ public class ProductOperation {
 
     try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
       String line;
+      JSONParser parser = new JSONParser();
+
       while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-        if (!productJson.getString("proID").equals(productId)) {
+        JSONObject product = (JSONObject) parser.parse(line);
+        if (!product.get("product_id").toString().equals(productId)) {
           updatedProducts.add(line);
         } else {
             deleted = true;
           }
       }
-    } catch (IOException e) {
-        System.out.println("Failed to delete product: " + e.getMessage());
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to delete product: " + e.getMessage());
         return false;
       }
 
-        return deleted ? writeProductsToFile(updatedProducts) : false;
-    }
-
-  public List<Product> getProductListByKeyword(String keyword) {
-    List<Product> matchingProducts = new ArrayList<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-      String line;
-
-      while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-
-        if (productJson.getString("proName").toLowerCase().contains(keyword.toLowerCase())) {
-          matchingProducts.add(new Product(
-            productJson.getString("proID"),
-            productJson.getString("proModel"),
-            productJson.getString("proCategory"),
-            productJson.getString("proName"),
-            productJson.getDouble("proCurrentPrice"),
-            productJson.getDouble("proRawPrice"),
-            productJson.getDouble("proDiscount"),
-            productJson.getDouble("proLikesDiscount")
-            ));
-        }
-      }
-    } catch (IOException e) {
-        System.out.println("Failed to search products: " + e.getMessage());
-      }
-
-    return matchingProducts;
+      return deleted && writeProductsToFile(updatedProducts);
   }
 
+  public List<Product> getProductListByKeyword(String keyword) {
+    List<Product> products = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+      String line;
+      JSONParser parser = new JSONParser();
+
+      while ((line = reader.readLine()) != null) {
+        JSONObject product = (JSONObject) parser.parse(line);
+        if (product.get("name").toString().toLowerCase().contains(keyword.toLowerCase())) {
+          products.add(new Product(product));
+        }
+      }
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to search products: " + e.getMessage());
+      }
+
+      return products;
+  }
+
+   
   public Product getProductById(String productId) {
     try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
       String line;
+      JSONParser parser = new JSONParser();
 
       while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-        if (productJson.getString("proID").equals(productId)) {
-          return new Product(
-              productJson.getString("proID"),
-              productJson.getString("proModel"),
-              productJson.getString("proCategory"),
-              productJson.getString("proName"),
-              productJson.getDouble("proCurrentPrice"),
-              productJson.getDouble("proRawPrice"),
-              productJson.getDouble("proDiscount"),
-              productJson.getDouble("proLikesDiscount")
-              );
+        JSONObject product = (JSONObject) parser.parse(line);
+        if (product.get("product_id").toString().equals(productId)) {
+          return new Product(product);
         }
       }
-    } catch (IOException e) {
-        System.out.println("Failed to retrieve product: " + e.getMessage());
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to retrieve product: " + e.getMessage());
       }
 
-    return null;
+      return null;
+  }
+
+  //Bar chart
+  public void generateCategoryFigure() {
+    Map<String, Integer> categoryCounts = new HashMap<>();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+      String line;
+      JSONParser parser = new JSONParser();
+
+      while ((line = reader.readLine()) != null) {
+        JSONObject product = (JSONObject) parser.parse(line);
+        String category = product.get("category").toString();
+        categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + 1);
+      }
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to process category data: " + e.getMessage());
+      }
+
+      ChartExporter.generateBarChart(categoryCounts, "Product Categories", "category_distribution.png");
+  }
+
+  //Pie chart
+  public void generateDiscountFigure() {
+    Map<String, Integer> discountGroups = new HashMap<>();
+    discountGroups.put("<30%", 0);
+    discountGroups.put("30-60%", 0);
+    discountGroups.put(">60%", 0);
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+      String line;
+      JSONParser parser = new JSONParser();
+
+      while ((line = reader.readLine()) != null) {
+        JSONObject product = (JSONObject) parser.parse(line);
+        double discount = Double.parseDouble(product.get("discount").toString());
+
+        if (discount < 30) {
+          discountGroups.put("<30%", discountGroups.get("<30%") + 1);
+        } else if (discount <= 60) {
+            discountGroups.put("30-60%", discountGroups.get("30-60%") + 1);
+          } else {
+             discountGroups.put(">60%", discountGroups.get(">60%") + 1);
+            }
+      }
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to process discount data: " + e.getMessage());
+      }
+
+      ChartExporter.generatePieChart(discountGroups, "Product Discounts", "discount_distribution.png");
+  }
+
+  //Bar chart
+  public void generateLikesCountFigure() {
+    Map<String, Integer> likesCountMap = new HashMap<>();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+      String line;
+      JSONParser parser = new JSONParser();
+
+      while ((line = reader.readLine()) != null) {
+        JSONObject product = (JSONObject) parser.parse(line);
+        String category = product.get("category").toString();
+        int likes = Integer.parseInt(product.get("likes_count").toString());
+
+        likesCountMap.put(category, likesCountMap.getOrDefault(category, 0) + likes);
+      }
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to process likes count data: " + e.getMessage());
+    }
+
+    ChartExporter.generateBarChart(likesCountMap, "Likes Count by Category", "likes_count_distribution.png");
+  }
+
+  //Scatter chart
+  public void generateDiscountLikesCountFigure() {
+    Map<Double, Double> discountLikesMap = new HashMap<>();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+      String line;
+      JSONParser parser = new JSONParser();
+
+      while ((line = reader.readLine()) != null) {
+        JSONObject product = (JSONObject) parser.parse(line);
+        double discount = Double.parseDouble(product.get("discount").toString());
+        double likes = Double.parseDouble(product.get("likes_count").toString());
+
+        discountLikesMap.put(discount, likes);
+      }
+    } catch (IOException | ParseException e) {
+        System.err.println("Failed to process discount-likes data: " + e.getMessage());
+    }
+
+    ChartExporter.generateScatterChart(discountLikesMap, "Likes vs. Discount", "discount_likes_relationship.png");
   }
 
   public void deleteAllProducts() {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
       writer.write(""); 
-      System.out.println("All products deleted successfully.");
+      System.out.println("All products deleted successfully!");
     } catch (IOException e) {
-        System.out.println("Failed to delete all products: " + e.getMessage());
-      }
+        System.err.println("Failed to delete all products: " + e.getMessage());
+    }
   }
 
   private boolean writeProductsToFile(List<String> products) {
@@ -186,133 +227,11 @@ public class ProductOperation {
         writer.write(product);
         writer.newLine();
       }
-        return true;
 
+      return true;
     } catch (IOException e) {
-        System.out.println("Failed to update product file: " + e.getMessage());
+        System.err.println("Failed to write products to file: " + e.getMessage());
         return false;
-      }
-  }
-
-  private void saveChartAsImage(Chart chart, String fileName) {
-    WritableImage image = chart.snapshot(new SnapshotParameters(), null);
-    File file = new File("data/figure/" + fileName);
-    try {
-      ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-      System.out.println("Chart saved: " + file.getAbsolutePath());
-    } catch (IOException e) {
-        System.out.println("Failed to save chart image: " + e.getMessage());
     }
   }
-
-  public void generateCategoryFigure() {
-    Map<String, Integer> categoryCount = new HashMap<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-        String category = productJson.getString("proCategory");
-        categoryCount.put(category, categoryCount.getOrDefault(category, 0) + 1);
-      }
-    } catch (IOException e) {
-        System.out.println("Error processing category data: " + e.getMessage());
-      return;
-    }
-
-    CategoryAxis xAxis = new CategoryAxis();
-    NumberAxis yAxis = new NumberAxis();
-    BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-    barChart.setTitle("Product Categories (Descending)");
-
-    XYChart.Series<String, Number> series = new XYChart.Series<>();
-    categoryCount.entrySet().stream()
-      .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-      .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
-
-    barChart.getData().add(series);
-    saveChartAsImage(barChart, "category_chart.png");
-  }
-
-  public void generateDiscountFigure() {
-    int lowDiscount = 0, midDiscount = 0, highDiscount = 0;
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-      String line;
-
-      while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-        double discount = productJson.getDouble("proDiscount");
-        if (discount < 30) lowDiscount++;
-        else if (discount <= 60) midDiscount++;
-        else highDiscount++;
-      }
-    } catch (IOException e) {
-        System.out.println("Failed to process discount data: " + e.getMessage());
-      return;
-    }
-
-    PieChart pieChart = new PieChart();
-    pieChart.getData().addAll(
-      new PieChart.Data("Less than 30%", lowDiscount),
-      new PieChart.Data("30% - 60%", midDiscount),
-      new PieChart.Data("Above 60%", highDiscount)
-    );
-
-    pieChart.setTitle("Discount Distribution");
-    saveChartAsImage(pieChart, "discount_chart.png");
- }
-
- public void generateLikesCountFigure() {
-    Map<String, Double> categoryLikes = new HashMap<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-        String category = productJson.getString("proCategory");
-        double likes = productJson.getDouble("proLikesDiscount");
-        categoryLikes.put(category, categoryLikes.getOrDefault(category, 0.0) + likes);
-      }
-    } catch (IOException e) {
-        System.out.println("Failed to process likes count: " + e.getMessage());
-      return;
-    }
-
-    CategoryAxis xAxis = new CategoryAxis();
-    NumberAxis yAxis = new NumberAxis();
-    BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-    barChart.setTitle("Total Likes per Category (Ascending)");
-
-    XYChart.Series<String, Number> series = new XYChart.Series<>();
-    categoryLikes.entrySet().stream()
-      .sorted(Map.Entry.comparingByValue()) // Ascending order
-      .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
-
-    barChart.getData().add(series);
-    saveChartAsImage(barChart, "likes_chart.png");
- }
-
- public void generateDiscountLikesCountFigure() {
-    ScatterChart<Number, Number> scatterChart = new ScatterChart<>(new NumberAxis(), new NumberAxis());
-    scatterChart.setTitle("Likes Count vs Discount");
-
-    XYChart.Series<Number, Number> series = new XYChart.Series<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        JSONObject productJson = new JSONObject(line);
-        double discount = productJson.getDouble("proDiscount");
-        double likes = productJson.getDouble("proLikesDiscount");
-        series.getData().add(new XYChart.Data<>(discount, likes));
-      }
-    } catch (IOException e) {
-        System.out.println("Failed to process discount-likes data: " + e.getMessage());
-      return;
-    }
-
-    scatterChart.getData().add(series);
-    saveChartAsImage(scatterChart, "discount_likes_chart.png");
- }
 }

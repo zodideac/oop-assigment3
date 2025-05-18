@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Main {
     private static IOinterface io = IOinterface.getInstance();
     public static void main(String[] args) {
@@ -15,17 +17,13 @@ public class Main {
             int choice = parseInteger(userChoice[0]);
 
             switch (choice) {
-                case 1:
-                    handleLogin();
-                    break;
-                case 2:
-                    handleRegistration();
-                    break;
-                case 3:
+                case 1 -> handleLogin();
+                case 2 -> handleRegistration();
+                case 3 -> {
                     io.printMessage("Exiting application. Goodbye!");
                     System.exit(0);
-                default:
-                    io.printErrorMessage("Main Menu", "Invalid choice. Please try again.");
+                }
+                default -> io.printErrorMessage("Main Menu", "Invalid choice. Please try again!");
             }
         }
     }
@@ -35,7 +33,7 @@ public class Main {
         String username = loginData[0];
         String password = loginData[1];
 
-        if (username.equalsIgnoreCase("admin") && password.equals("adminpass")) {
+        if ("admin".equalsIgnoreCase(username) && "admin123".equals(password)) {
             io.printMessage("Login successful. Welcome, admin!");
             adminMenu();
         } else {
@@ -46,7 +44,6 @@ public class Main {
     private static void handleRegistration() {
         io.printMessage("Registering a new customer.");
         String[] customerData = io.getUserInput("Enter Username, Password, Email, Mobile", 4);
-
         io.printMessage("Customer registered successfully!");
     }
 
@@ -57,64 +54,73 @@ public class Main {
             int choice = parseInteger(adminChoice[0]);
 
             switch (choice) {
-                case 1:
-                    io.printMessage("Showing products...");
-                    break;
-                case 2:
-                    handleRegistration();
-                    break;
-                case 3:
-                    io.printMessage("Showing customers...");
-                    break;
-                case 4:
-                    io.printMessage("Showing orders...");
-                    break;
-                case 5:
-                    io.printMessage("Generating test data...");
-                    break;
-                case 6:
-                    io.printMessage("Generating statistical figures...");
-                    break;
-                case 7:
-                    io.printMessage("Deleting all data...");
-                    break;
-                case 8:
+                case 1 -> io.showList("Admin", "Products", ProductOperation.getInstance().getProductList(1).getProducts(), 1, 1);
+                case 2 -> handleRegistration();
+                case 3 -> io.showList("Admin", "Customers", CustomerOperation.getInstance().getCustomerList(1).getCustomers(), 1, 1);
+                case 4 -> io.showList("Admin", "Orders", OrderOperation.getInstance().getOrderList("all", 1).getOrders(), 1, 1);
+                case 5 -> {
+                    OrderOperation.getInstance().generateTestOrderData();
+                    io.printMessage("Test data generated.");
+                }
+                case 6 -> generateAllFigures();
+                case 7 -> deleteAllData();
+                case 8 -> {
                     io.printMessage("Logging out...");
                     return;
-                default:
-                    io.printErrorMessage("Admin Menu", "Invalid choice. Try again.");
+                }
+                default -> io.printErrorMessage("Admin Menu", "Invalid choice. Try again.");
             }
         }
     }
 
-    private static void customerMenu() {
+    private static void customerMenu(String customerId) {
         while (true) {
             io.customerMenu();
-            String[] customerChoice = io.getUserInput("Enter your choice", 1);
+            String[] customerChoice = io.getUserInput("Enter menu option", 1);
             int choice = parseInteger(customerChoice[0]);
 
             switch (choice) {
-                case 1:
-                    io.printMessage("Showing profile...");
-                    break;
-                case 2:
-                    io.printMessage("Updating profile...");
-                    break;
-                case 3:
-                    io.printMessage("Showing products...");
-                    break;
-                case 4:
-                    io.printMessage("Showing history orders...");
-                    break;
-                case 5:
-                    io.printMessage("Generating consumption figures...");
-                    break;
-                case 6:
+                case 1 -> io.printObject(CustomerOperation.getInstance().getCustomerById(customerId));
+                case 2 -> handleProfileUpdate(customerId);
+                case 3 -> handleProductSearch();
+                case 4 -> io.showList("Customer", "Orders", OrderOperation.getInstance().getOrderList(customerId, 1).getOrders(), 1, 1);
+                case 5 -> {
+                    OrderOperation.getInstance().generateSingleCustomerConsumptionFigure(customerId);
+                    io.printMessage("Consumption figures generated.");
+                }
+                case 6 -> {
                     io.printMessage("Logging out...");
                     return;
-                default:
-                    io.printErrorMessage("Customer Menu", "Invalid choice.");
+                }
+                default -> io.printErrorMessage("Customer Menu", "Invalid choice.");
             }
+        }
+    }
+
+    private static void handleProfileUpdate(String customerId) {
+        io.printMessage("Updating profile for customer: " + customerId);
+        
+        String[] profileData = io.getUserInput("Enter new username and password", 2);
+        String newUsername = profileData[0];
+        String newPassword = profileData[1];
+        
+        Customer customer = CustomerOperation.getInstance().getCustomerById(customerId);
+        boolean success = CustomerOperation.getInstance().updateProfile(newUsername, newPassword, customer);
+        if (success) {
+            io.printMessage("Profile updated successfully!");
+        } else {
+            io.printErrorMessage("Profile Update", "Failed to update profile.");
+        }
+    }
+
+    private static void handleProductSearch() {
+        String[] searchKeyword = io.getUserInput("Enter product keyword", 1);
+        List<Product> matchingProducts = ProductOperation.getInstance().getProductListByKeyword(searchKeyword[0]);
+
+        if (!matchingProducts.isEmpty()) {
+            io.showList("Customer", "Search Results", matchingProducts, 1, 1);
+        } else {
+            io.printErrorMessage("Product Search", "No matching products found.");
         }
     }
 
@@ -125,5 +131,32 @@ public class Main {
             io.printErrorMessage("Input Parsing", "Invalid number format. Defaulting to -1.");
             return -1;
         }
+    }
+
+    private static void generateAllFigures() {
+        io.printMessage("Generating all figures...");
+
+        // Product-related figures
+        ProductOperation.getInstance().generateCategoryFigure();
+        ProductOperation.getInstance().generateDiscountFigure();
+        ProductOperation.getInstance().generateLikesCountFigure();
+        ProductOperation.getInstance().generateDiscountLikesCountFigure();
+
+        // Order-related figures
+        OrderOperation.getInstance().generateAllTop10BestSellersFigure();
+        OrderOperation.getInstance().generateAllCustomersConsumptionFigure();
+
+        io.printMessage("All figures successfully generated!");
+    }
+
+    private static void deleteAllData() {
+        io.printMessage("Deleting all data...");
+
+    
+        ProductOperation.getInstance().deleteAllProducts();
+        OrderOperation.getInstance().deleteAllOrders();
+        CustomerOperation.getInstance().deleteAllCustomers();
+
+        io.printMessage("All data successfully deleted!");
     }
 }

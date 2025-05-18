@@ -1,64 +1,35 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.json.simple.JSONObject;
 
-public class Customer extends User{
-    protected String userID;
-    protected String userName;
-    protected String userPassword;
-    protected String userRegisterTime;
-    protected String userRole;
-    protected String userEmail;
-    protected String userMobile;
+public class Customer extends User {
+    private String userEmail;
+    private String userMobile;
 
-    public Customer(String userID, String userName, String userPassword, String userRegisterTime, String userRole, String userEmail,String userMobile) {
-        this.userID = userID;
-        this.userName = userName;
-        this.userPassword = userPassword;
-        this.userRegisterTime = userRegisterTime;
-        this.userRole = userRole;
+    public Customer(String userId, String userName, String userPassword, String userRole, 
+                    String userEmail, String userMobile) {
+        super(userId, userName, userPassword, LocalDateTime.now()
+            .format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss")), userRole);
         this.userEmail = userEmail;
         this.userMobile = userMobile;
     }
 
-    public String userID() {
-        return userID;
-    }
-
-    public String userName(){
-        return userName;
-    }
-
-    public String userPassword() {
-        return userPassword;
-    }
-
-    public String userRegisterTime() {
-        return userRegisterTime;
-    }
-
-    public String userRole() {
-        return userRole;
-    }
-      public String userEmail(){
-        return userEmail;
-    }
-       public String userMobile(){
-        return userMobile;
-    }
-
-    public Customer() {
-        this.userID = "u_1234567890";
-        this.userName = "Default UserName";
-        this.userPassword = "Default Password";
-        this.userRegisterTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
-        this.userRole = "Customer";
-        this.userEmail = "User email";
-        this.userMobile = "User mobile";
+    public Customer(JSONObject json) {
+        super(json.get("user_id").toString(), json.get("user_name").toString(), json.get("user_password").toString(), 
+              json.get("user_register_time").toString(), json.get("user_role").toString());
+        this.userEmail = json.get("user_email").toString();
+        this.userMobile = json.get("user_mobile").toString();
     }
 
     @Override
     public String toString() {
-        return "UserID: " + userID + "\nuserName: " + userName + "\nuserPassword: " + userPassword
-                + "\nuserRegisterTime: " + userRegisterTime + "\nuserRole:" + userRole + "\nuserEmail" + userEmail + "\nuserMobile" +userMobile;
+        return String.format("{\"user_id\":\"%s\", \"user_name\":\"%s\", \"user_password\":\"%s\", " +
+                             "\"user_register_time\":\"%s\", \"user_role\":\"%s\", " +
+                             "\"user_email\":\"%s\", \"user_mobile\":\"%s\"}", 
+                             getUserId(), getUserName(), getUserPassword(), getUserRegisterTime(), 
+                             getUserRole(), userEmail, userMobile);
     }
+
+    public String getUserEmail() { return userEmail; }
+    public String getUserMobile() { return userMobile; }
 }

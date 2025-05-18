@@ -1,43 +1,45 @@
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import org.json.*;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import javafx.scene.Scene;
 import javafx.scene.chart.*;
-import javafx.scene.image.WritableImage;
-import javafx.embed.swing.SwingFXUtils;
-import javax.imageio.ImageIO;
-import javafx.scene.SnapshotParameters;
+import javafx.stage.Stage;
 
 
 public class OrderOperation {
     private static OrderOperation instance;
-    private static final String FILE_PATH = "./data/orders.txt";
-
+    private static final String FILE_PATH = "assignment/src/data/orders.json";
+    private static final int PAGE_SIZE = 10; 
     private OrderOperation() {}
 
     public static OrderOperation getInstance() {
         if (instance == null) { instance = new OrderOperation(); }
+            
         return instance;
     }
 
     public String generateUniqueOrderId() {
-        Random random = new Random();
-        int uniqueNumber = 10000 + random.nextInt(90000); 
-        return "o_" + uniqueNumber;
+        return "o_" + (10000 + new Random().nextInt(90000)); 
     }
 
     public boolean createAnOrder(String customerId, String productId, String createTime) {
-        String orderId = generateUniqueOrderId();
-        String orderTime = (createTime == null) ? LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss")) : createTime;
+        if (customerId == null || productId == null) {
+            return false;
+        }
 
-        JSONObject orderJson = new JSONObject();
-        orderJson.put("orderID", orderId);
-        orderJson.put("userID", customerId);
-        orderJson.put("proID", productId);
-        orderJson.put("orderTime", orderTime);
+        JSONObject newOrderJSON = new JSONObject();
+        HashMap<String,Object> newOrder = new HashMap<String,Object>();
+        newOrder.put("order_id", generateUniqueOrderId());
+        newOrder.put("customer_id", customerId);
+        newOrder.put("product_id", productId);
+        newOrder.put("order_time", (createTime != null) ? createTime : LocalDateTime.now().toString());
 
-        return writeOrderToFile(orderJson);
+        return writeOrderToFile(newOrderJSON);
     }
 
     public boolean deleteOrder(String orderId) {
@@ -46,116 +48,215 @@ public class OrderOperation {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+            JSONParser parser = new JSONParser();
+
             while ((line = reader.readLine()) != null) {
-                JSONObject orderJson = new JSONObject(line);
-                if (!orderJson.getString("orderID").equals(orderId)) {
+                JSONObject order = (JSONObject) parser.parse(line);
+                if (!order.get("order_id").toString().equals(orderId)) {
                     updatedOrders.add(line);
                 } else {
                     deleted = true;
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to delete order: " + e.getMessage());
-        return false;
-        }
-        return deleted ? writeOrdersToFile(updatedOrders) : false;
-    }
-
-    public class OrderListResult {
-        private List<Order> orders;
-        private int currentPage;
-        private int totalPages;
-
-        public OrderListResult(List<Order> orders, int currentPage, int totalPages) {
-            this.orders = orders;
-            this.currentPage = currentPage;
-            this.totalPages = totalPages;
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to delete order: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
 
-        public List<Order> getOrders() {
-            return orders;
-        }
-
-        public int getCurrentPage() {
-            return currentPage;
-        }
-
-        public int getTotalPages() {
-            return totalPages;
-        }
+        return deleted && writeOrdersToFile(updatedOrders);
     }
 
     public OrderListResult getOrderList(String customerId, int pageNumber) {
         List<Order> orders = new ArrayList<>();
         int totalOrders = 0;
-        int pageSize = 10;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
+            JSONParser parser = new JSONParser();
+
             while ((line = reader.readLine()) != null) {
-                JSONObject orderJson = new JSONObject(line);
-                if (orderJson.getString("userID").equals(customerId)) {
-                    totalOrders++;
-                    if (totalOrders > (pageNumber - 1) * pageSize && orders.size() < pageSize) {
+                totalOrders++;
+                JSONObject order = (JSONObject) parser.parse(line);
+
+                if (customerId.equals("all") || order.get("customer_id").toString().equals(customerId)) {
+                    if (orders.size() < PAGE_SIZE && totalOrders > (pageNumber - 1) * PAGE_SIZE) {
                         orders.add(new Order(
-                            orderJson.getString("orderID"),
-                            orderJson.getString("userID"),
-                            orderJson.getString("proID"),
-                            orderJson.getString("orderTime")
+                            order.get("order_id").toString(),
+                            order.get("customer_id").toString(),
+                            order.get("product_id").toString(),
+                            order.get("order_time").toString()
                         ));
                     }
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to retrieve order list: " + e.getMessage());
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to retrieve orders: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        return new OrderListResult(orders, pageNumber, (int) Math.ceil((double) totalOrders / pageSize));
+        return new OrderListResult(orders, pageNumber, (int) Math.ceil((double) totalOrders / PAGE_SIZE));
     }
 
     public void generateTestOrderData() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            for (int i = 0; i < 10; i++) {
-                String customerId = "customer_" + (i + 1);
+        for (int i = 1; i <= 10; i++) {
+            String customerId = "C_" + i;
+            for (int j = 0; j < 50 + new Random().nextInt(151); j++) {
+                String productId = "P_" + new Random().nextInt(100);
+                String orderTime = LocalDateTime.now().minusMonths(new Random().nextInt(12)).format(DateTimeFormatter.ISO_DATE_TIME);
+                createAnOrder(customerId, productId, orderTime);
+            }
+        }
+        System.out.println("Test order data generated successfully!");
+    }
 
-                int orderCount = new Random().nextInt(151) + 50; 
-                for (int j = 0; j < orderCount; j++) {
-                    String productId = "product_" + new Random().nextInt(100);
-                    String orderTime = LocalDateTime.now().minusMonths(new Random().nextInt(12))
-                            .format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
+    //Line chart
+    public void generateSingleCustomerConsumptionFigure(String customerId) {
+        Map<Month, Double> monthlyConsumption = new HashMap<>();
+        for (Month month : Month.values()) {
+            monthlyConsumption.put(month, 0.0);
+        }
 
-                    JSONObject orderJson = new JSONObject();
-                    orderJson.put("orderID", generateUniqueOrderId());
-                    orderJson.put("userID", customerId);
-                    orderJson.put("proID", productId);
-                    orderJson.put("orderTime", orderTime);
-
-                    writer.write(orderJson.toString());
-                    writer.newLine();
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            JSONParser parser = new JSONParser();
+            String line;
+            
+            while ((line = reader.readLine()) != null) {
+                JSONObject order = (JSONObject) parser.parse(line);
+                if (order.get("customer_id").toString().equals(customerId)) {
+                    LocalDateTime orderDate = LocalDateTime.parse(order.get("order_time").toString(), DateTimeFormatter.ISO_DATE_TIME);
+                    double price = Double.parseDouble(order.get("order_price").toString());
+                    monthlyConsumption.put(orderDate.getMonth(), monthlyConsumption.get(orderDate.getMonth()) + price);
                 }
             }
-            System.out.println("Test order data generated successfully.");
-        } catch (IOException e) {
-            System.out.println("Failed to generate test order data: " + e.getMessage());
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to generate consumption figure: " + e.getMessage());
+            e.printStackTrace();
         }
+
+        showLineChart("Customer Consumption", "Months", "Total Spent ($)", monthlyConsumption);
+    }
+
+    //Line chart
+    public void generateAllCustomersConsumptionFigure() {
+        Map<Month, Double> monthlyConsumption = new HashMap<>();
+        for (Month month : Month.values()) {
+            monthlyConsumption.put(month, 0.0);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            JSONParser parser = new JSONParser();
+            String line;
+            
+            while ((line = reader.readLine()) != null) {
+                JSONObject order = (JSONObject) parser.parse(line);
+                LocalDateTime orderDate = LocalDateTime.parse(order.get("order_time").toString(), DateTimeFormatter.ISO_DATE_TIME);
+                double price = Double.parseDouble(order.get("order_price").toString());
+                monthlyConsumption.put(orderDate.getMonth(), monthlyConsumption.get(orderDate.getMonth()) + price);
+            }
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to generate consumption figure: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        showLineChart("All Customers Consumption", "Months", "Total Revenue ($)", monthlyConsumption);
+    }
+
+    //Bar chart
+    public void generateAllTop10BestSellersFigure() {
+        Map<String, Integer> productSales = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            JSONParser parser = new JSONParser();
+            String line;
+            
+            while ((line = reader.readLine()) != null) {
+                JSONObject order = (JSONObject) parser.parse(line);
+                String productId = order.get("product_id").toString();
+                productSales.put(productId, productSales.getOrDefault(productId, 0) + 1);
+            }
+        } catch (IOException | ParseException e) {
+            System.err.println("Failed to generate top sellers figure: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        List<Map.Entry<String, Integer>> sortedProducts = new ArrayList<>(productSales.entrySet());
+        sortedProducts.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+        Map<String, Integer> top10 = new LinkedHashMap<>();
+        for (int i = 0; i < Math.min(10, sortedProducts.size()); i++) {
+            top10.put(sortedProducts.get(i).getKey(), sortedProducts.get(i).getValue());
+        }
+
+        showBarChart("Top 10 Best-Selling Products", "Products", "Sales Count", top10);
+    }
+
+    private void showLineChart(String title, String xAxisLabel, String yAxisLabel, Map<Month, Double> data) {
+        Stage stage = new Stage();
+        stage.setTitle(title);
+
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel(xAxisLabel);
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel(yAxisLabel);
+
+        LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
+        chart.setTitle(title);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(title);
+        for (Map.Entry<Month, Double> entry : data.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey().name(), entry.getValue()));
+        }
+
+        chart.getData().add(series);
+        Scene scene = new Scene(chart, 800, 600);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void showBarChart(String title, String xAxisLabel, String yAxisLabel, Map<String, Integer> data) {
+        Stage stage = new Stage();
+        stage.setTitle(title);
+
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel(xAxisLabel);
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel(yAxisLabel);
+
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setTitle(title);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName(title);
+        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+
+        chart.getData().add(series);
+        Scene scene = new Scene(chart, 800, 600);
+        stage.setScene(scene);
+        stage.show();
     }
 
     public void deleteAllOrders() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            writer.write(""); // Clears file content
-            System.out.println("All orders deleted successfully.");
+            writer.write(""); 
         } catch (IOException e) {
-            System.out.println("Failed to delete all orders: " + e.getMessage());
+            System.err.println("Failed to delete all orders: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private boolean writeOrderToFile(JSONObject order) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(order.toString());
+            writer.write(order.toJSONString());
             writer.newLine();
             return true;
         } catch (IOException e) {
-            System.out.println("Failed to write order to file: " + e.getMessage());
+            System.err.println("Failed to write order: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -168,133 +269,9 @@ public class OrderOperation {
             }
             return true;
         } catch (IOException e) {
-            System.out.println("Failed to update order file: " + e.getMessage());
+            System.err.println("Failed to update orders file: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
-
-    private void saveChartAsImage(Chart chart, String fileName) {
-        WritableImage image = chart.snapshot(new SnapshotParameters(), null);
-        File file = new File("data/figure/" + fileName);
-
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-            System.out.println("Chart saved: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            System.out.println("Failed to save chart image: " + e.getMessage());
-        }
-    }
-
-    public void generateSingleCustomerConsumptionFigure(String customerId) {
-    Map<String, Double> monthlyConsumption = new HashMap<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            JSONObject orderJson = new JSONObject(line);
-            if (orderJson.getString("userID").equals(customerId)) {
-                String orderMonth = orderJson.getString("orderTime").substring(3, 5); 
-                double price = getProductPrice(orderJson.getString("proID"));
-                monthlyConsumption.put(orderMonth, monthlyConsumption.getOrDefault(orderMonth, 0.0) + price);
-            }
-        }
-    } catch (IOException e) {
-        System.out.println("Failed to process customer consumption: " + e.getMessage());
-        return;
-    }
-
-    CategoryAxis xAxis = new CategoryAxis();
-    NumberAxis yAxis = new NumberAxis();
-    BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-    barChart.setTitle("Customer Monthly Consumption");
-
-    XYChart.Series<String, Number> series = new XYChart.Series<>();
-    for (Map.Entry<String, Double> entry : monthlyConsumption.entrySet()) {
-        series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
-    }
-
-    barChart.getData().add(series);
-    saveChartAsImage(barChart, "customer_" + customerId + "_consumption.png");
-}
-
-public void generateAllCustomersConsumptionFigure() {
-    Map<String, Map<String, Double>> customerMonthlyConsumption = new HashMap<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            JSONObject orderJson = new JSONObject(line);
-            String customerId = orderJson.getString("userID");
-            String orderMonth = orderJson.getString("orderTime").substring(3, 5); 
-            double price = getProductPrice(orderJson.getString("proID"));
-
-            customerMonthlyConsumption.putIfAbsent(customerId, new HashMap<>());
-            customerMonthlyConsumption.get(customerId).put(orderMonth, customerMonthlyConsumption.get(customerId).getOrDefault(orderMonth, 0.0) + price);
-        }
-    } catch (IOException e) {
-        System.out.println("Failed to process all customer consumption: " + e.getMessage());
-        return;
-    }
-
-    CategoryAxis xAxis = new CategoryAxis();
-    NumberAxis yAxis = new NumberAxis();
-    StackedBarChart<String, Number> stackedBarChart = new StackedBarChart<>(xAxis, yAxis);
-    stackedBarChart.setTitle("All Customers Monthly Consumption");
-
-    for (Map.Entry<String, Map<String, Double>> customerEntry : customerMonthlyConsumption.entrySet()) {
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Customer " + customerEntry.getKey());
-        for (Map.Entry<String, Double> monthEntry : customerEntry.getValue().entrySet()) {
-            series.getData().add(new XYChart.Data<>(monthEntry.getKey(), monthEntry.getValue()));
-        }
-        stackedBarChart.getData().add(series);
-    }
-
-    saveChartAsImage(stackedBarChart, "all_customers_consumption.png");
-}
-
-public void generateAllTop10BestSellersFigure() {
-    Map<String, Integer> productSales = new HashMap<>();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            JSONObject orderJson = new JSONObject(line);
-            String productId = orderJson.getString("proID");
-            productSales.put(productId, productSales.getOrDefault(productId, 0) + 1);
-        }
-    } catch (IOException e) {
-        System.out.println("Failed to process top sellers: " + e.getMessage());
-        return;
-    }
-
-    CategoryAxis xAxis = new CategoryAxis();
-    NumberAxis yAxis = new NumberAxis();
-    BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-    barChart.setTitle("Top 10 Best-Selling Products");
-
-    XYChart.Series<String, Number> series = new XYChart.Series<>();
-    productSales.entrySet().stream()
-        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()) 
-        .limit(10)
-        .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
-
-    barChart.getData().add(series);
-    saveChartAsImage(barChart, "top_10_best_sellers.png");
-}
-
-private double getProductPrice(String productId) {
-    try (BufferedReader reader = new BufferedReader(new FileReader("data/products.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            JSONObject productJson = new JSONObject(line);
-            if (productJson.getString("proID").equals(productId)) {
-                return productJson.getDouble("proCurrentPrice"); 
-            }
-        }
-    } catch (IOException e) {
-        System.out.println("Error retrieving product price: " + e.getMessage());
-    }
-    return 0.0; 
-}
 }

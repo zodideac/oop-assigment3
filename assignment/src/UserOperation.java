@@ -52,16 +52,16 @@ public class UserOperation {
   }
 
   public boolean checkUsernameExist(String userName) {
-        File file = new File("./data/users.txt");
+        File file = new File("assignment/src/data/users.json");
         if (!file.exists()) {
-            return false; // No user file found, no existing users
+            return false; 
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("\"user_name\":\"" + userName + "\"")) {
-                    return true; // Username found in file
+                    return true; 
                 }
             }
         } catch (IOException e) {

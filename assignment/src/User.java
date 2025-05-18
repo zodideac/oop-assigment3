@@ -2,52 +2,38 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class User {
-    protected String userID;
+    protected String userId;
     protected String userName;
     protected String userPassword;
     protected String userRegisterTime;
     protected String userRole;
 
-
-    public User(String userID, String userName, String userPassword, String userRegisterTime, String userRole) {
-        this.userID = userID;
+    public User(String userId, String userName, String userPassword, String userRegisterTime, String userRole) {
+        this.userId = userId;
         this.userName = userName;
         this.userPassword = userPassword;
         this.userRegisterTime = userRegisterTime;
         this.userRole = userRole;
     }
 
-    public String userID() {
-        return userID;
-    }
-
-    public String userName(){
-        return userName;
-    }
-
-    public String userPassword() {
-        return userPassword;
-    }
-
-    public String userRegisterTime() {
-        return userRegisterTime;
-    }
-
-    public String userRole() {
-        return userRole;
-    }
-    public User(){
-        this.userID = "u_1234567890";
+    public User() {
+        this.userId = "u_1234567890";
         this.userName = "Default UserName";
         this.userPassword = "Default Password";
         this.userRegisterTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
         this.userRole = "Customer";
-
     }
+
+    public String getUserId() { return userId; }
+    public String getUserName() { return userName; }
+    public String getUserPassword() { return userPassword; }
+    public String getUserRegisterTime() { return userRegisterTime; }
+    public String getUserRole() { return userRole; }
 
     @Override
     public String toString() {
-        return "UserID: " + userID + "\nuserName: " + userName + "\nuserPassword: " + userPassword
-                + "\nuserRegisterTime: " + userRegisterTime + "\nuserRole:" + userRole;
+        return String.format("{\"user_id\":\"%s\", \"user_name\":\"%s\", \"user_password\":\"%s\", " +
+                             "\"user_register_time\":\"%s\", \"user_role\":\"%s\"}", 
+                             userId, userName, userPassword, userRegisterTime, userRole);
     }
 }

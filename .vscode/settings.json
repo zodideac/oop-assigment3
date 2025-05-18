@@ -2,17 +2,17 @@
   "java.project.referencedLibraries": [
     "lib/json.jar",
     "assignment/lib/json-20250107.jar",
-    "assignment/lib/javafx.base.jar",
-    "assignment/lib/javafx.controls.jar",
-    "assignment/lib/javafx.fxml.jar",
-    "assignment/lib/javafx.graphics.jar",
-    "assignment/lib/javafx.media.jar",
-    "assignment/lib/javafx.swing.jar",
-    "assignment/lib/javafx.web.jar",
-    "assignment/lib/javafx-swt.jar",
     "assignment/lib/jdk.jsobject.jar",
     "assignment/lib/jfx.incubator.input.jar",
     "assignment/lib/jfx.incubator.richtext.jar",
-    "test-lib\\**\\*.jar"
+    "assignment/lib/json-simple-1.1.1.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.base.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.controls.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.fxml.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.graphics.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.media.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.swing.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx.web.jar",
+    "assignment/lib/openjfx-21.0.7_windows-x64_bin-sdk/javafx-sdk-21.0.7/lib/javafx-swt.jar"
   ]
 }
