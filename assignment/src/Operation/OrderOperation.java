@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
+import org.json.simple.JSONValue;
+import java.util.LinkedHashMap;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -28,7 +30,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.BarChart;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
-
 import javax.imageio.ImageIO;
 
 /**
@@ -81,40 +82,42 @@ public class OrderOperation {
     }
 
     /**
-     * Creates a new order with the given customer ID, product ID, and order time.
-     * <p>
-     * If no order time is provided, the method defaults to the current timestamp.
-     * The new order is stored in the orders file.
-     * </p>
-     *
-     * @param customerId the ID of the customer placing the order.
-     * @param productId  the ID of the ordered product.
-     * @param createTime the time when the order is created. If null, defaults to current time.
-     * @return {@code true} if the order was successfully created; {@code false} otherwise.
-     */
-    public boolean createAnOrder(String customerId, String productId, String createTime) {
-        if (createTime == null || createTime.isEmpty()) {
-            createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss"));
-        }
-        String orderId = generateUniqueOrderId();
+ * Creates an order record and writes it to the orders file using a fixed JSON key order.
+ *
+ * @param customerId the customer ID.
+ * @param productId  the product ID.
+ * @param orderTime  the order timestamp.
+ * @return true if the order was written successfully; false otherwise.
+ */
 
-        // Create a JSON object to store order details.
-        HashMap<String, Object> orderDetails = new HashMap<>();
-        orderDetails.put("order_id", orderId);
-        orderDetails.put("user_id", customerId);
-        orderDetails.put("pro_id", productId);
-        orderDetails.put("order_time", createTime);
-        JSONObject orderDetailsJSON = new JSONObject(orderDetails);
-
-        // Append order data to the orders file.
-        try (FileWriter writer = new FileWriter("assignment/data/orders.txt", true)) {
-            writer.write(orderDetailsJSON.toJSONString() + System.lineSeparator());
-            return true;
-        } catch (IOException ex) {
-            System.err.println("Error creating order: " + ex.getMessage());
-            return false;
-        }
+    public boolean createAnOrder(String customerId, String productId, String orderTime) {
+    // Generate a random unique order ID. (Adjust this as needed.)
+    String orderId = "o_" + String.format("%05d", new java.util.Random().nextInt(100000));
+    
+    // Build the order record using a LinkedHashMap to preserve key order.
+    LinkedHashMap<String, Object> orderMap = new LinkedHashMap<>();
+    orderMap.put("order_id", orderId);
+    orderMap.put("user_id", customerId);
+    orderMap.put("pro_id", productId);
+    orderMap.put("order_time", orderTime);
+    
+    // Define the desired order for the keys.
+    List<String> keyOrder = List.of("order_id", "user_id", "pro_id", "order_time");
+    
+    // Generate the JSON string using our helper.
+    String orderJSON = toOrderedJSONString(orderMap, keyOrder);
+    
+    // Write the JSON string to the orders.txt file.
+    File file = new File("assignment/data/orders.txt");
+    try (FileWriter writer = new FileWriter(file, true)) {
+        writer.write(orderJSON + System.lineSeparator());
+        return true;
+    } catch (IOException e) {
+        System.err.println("Error writing order to file: " + e.getMessage());
+        return false;
     }
+}
+
 
     /**
      * Deletes an order by its order ID.
@@ -254,6 +257,33 @@ public class OrderOperation {
 
         return new OrderListResult(pageOrders, pageNumber, totalPages);
     }
+
+    /**
+ * Converts the given LinkedHashMap into a JSON string with keys output in the specified order.
+ *
+ * @param orderedMap the map containing keys and values.
+ * @param keyOrder   the list of keys in the desired order.
+ * @return a JSON formatted string with the keys in the specified order.
+ */
+private String toOrderedJSONString(LinkedHashMap<String, Object> orderedMap, List<String> keyOrder) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    boolean first = true;
+    // Iterate through the keys in the desired order.
+    for (String key : keyOrder) {
+        if (orderedMap.containsKey(key)) {
+            if (!first) {
+                sb.append(",");
+            }
+            sb.append("\"").append(key).append("\":");
+            sb.append(JSONValue.toJSONString(orderedMap.get(key)));
+            first = false;
+        }
+    }
+    sb.append("}");
+    return sb.toString();
+}
+
 
     /**
  * Generates test order data for multiple customers.

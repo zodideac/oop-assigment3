@@ -1,6 +1,5 @@
 package Main;
 
-import java.util.List;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -8,7 +7,6 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 import IO.IOinterface;
-import Model.Order;
 import Model.User;
 import Operation.AdminOperation;
 import Operation.CustomerOperation;
@@ -319,16 +317,20 @@ public class Main {
                     ProductOperation.ProductListResult pr = ProductOperation.getInstance().getProductList(pPage);
                     io.showList(customerUser.getUserRole(), "Product", pr.products, pr.currentPage, pr.totalPages);
                     break;
-                case "4":
-                    // Case 4: Display order history.
-                    System.out.print("Enter page number for your orders: ");
-                    int oPage = Integer.parseInt(scanner.nextLine().trim());
-                    List<Order> orders = OrderOperation.getInstance().getOrderList(customerUser.getUserId(), oPage).orders;
-                    io.showList(customerUser.getUserRole(), "Your Order", orders, oPage, 0);
-                    break;
+               case "4":
+                // Case 4: Display order history.
+                System.out.print("Enter page number for your orders: ");
+                int oPage = Integer.parseInt(scanner.nextLine().trim());
+                // Retrieve the complete OrderListResult (which includes total pages)
+                OrderListResult result = OrderOperation.getInstance().getOrderList(customerUser.getUserId(), oPage);
+                // Use result.totalPages instead of 0
+                io.showList(customerUser.getUserRole(), "Your Order", result.orders, result.currentPage, result.totalPages);
+                break;
+
                 case "5":
                     // Case 5: Generate consumption figure.
                     OrderOperation.getInstance().generateSingleCustomerConsumptionFigure(customerUser.getUserId());
+                    OrderOperation.getInstance().generateAllCustomersConsumptionFigure();
                     io.printMessage("Consumption figure generated. Please check the data/figure folder.");
                     break;
                 case "6":
@@ -341,8 +343,8 @@ public class Main {
                     break;
             }
         }
-        }
     }
+}
 
 
 

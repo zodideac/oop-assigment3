@@ -34,12 +34,10 @@ public class IOinterface {
      * @return the singleton instance of IOinterface.
      */
     public static IOinterface getInstance() {
-        if (instance == null) {
-            instance = new IOinterface();
-        }
-        return instance;
-    }
-
+        if (instance == null) { instance = new IOinterface(); }
+        return instance;    
+    }    
+       
     /**
      * Prompts the user with a message and splits the input by whitespace into a fixed number of arguments.
      * <p>
@@ -75,7 +73,7 @@ public class IOinterface {
         System.out.println("1. Login\n");
         System.out.println("2. Register\n");
         System.out.println("3. Quit\n");
-        System.out.println("===========================");
+        System.out.println("===========================\n");
     }
 
     /**
@@ -91,7 +89,7 @@ public class IOinterface {
         System.out.println("6. Generate all statistical figures\n");
         System.out.println("7. Delete all data\n");
         System.out.println("8. Logout\n");
-        System.out.println("=====================");
+        System.out.println("=====================\n");
     }
 
     /**
@@ -105,7 +103,7 @@ public class IOinterface {
         System.out.println("4. Show history orders\n");
         System.out.println("5. Generate all consumption figures\n");
         System.out.println("6. Logout\n");
-        System.out.println("=======================");
+        System.out.println("=======================\n");
     }
 
     /**
