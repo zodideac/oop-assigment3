@@ -217,107 +217,106 @@ public class CustomerOperation {
         return "u_" + System.currentTimeMillis();
     }
     
-/**
- * Updates a single attribute of a customer's profile.
- * <p>
- * Rather than parsing and re-serializing the JSON (which can change the format),
- * this method uses regex to update only the target field in the original line.
- * Supported attributes: "user_name", "user_password", "user_email", and "user_mobile".
- * </p>
- *
- * @param attributeName  the attribute to update.
- * @param value          the new value.
- * @param customerObject the customer whose profile is being updated.
- * @return {@code true} if the update was successful; {@code false} otherwise.
- */
-public boolean updateProfile(String attributeName, String value, Customer customerObject) {
-    if (customerObject == null) {
-        System.out.println("Customer does not exist.");
-        return false;
-    }
+    /**
+     * Updates a single attribute of a customer's profile.
+     * <p>
+     * Rather than parsing and re-serializing the JSON (which can change the format),
+     * this method uses regex to update only the target field in the original line.
+     * Supported attributes: "user_name", "user_password", "user_email", and "user_mobile".
+     * </p>
+     *
+     * @param attributeName  the attribute to update.
+     * @param value          the new value.
+     * @param customerObject the customer whose profile is being updated.
+     * @return {@code true} if the update was successful; {@code false} otherwise.
+     */
+    public boolean updateProfile(String attributeName, String value, Customer customerObject) {
+        if (customerObject == null) {
+            System.out.println("Customer does not exist.");
+            return false;
+        }
 
-    List<String> lines = new ArrayList<>();
-    File file = new File("assignment/data/users.txt");
-    boolean found = false;
+        List<String> lines = new ArrayList<>();
+        File file = new File("assignment/data/users.txt");
+        boolean found = false;
 
-    try (Scanner scanner = new Scanner(file)) {
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            String trimmedLine = line.trim();
-            if (trimmedLine.isEmpty()) {
-                lines.add(line);
-                continue;
-            }
-            try {
-                // Try to parse the record, so we can check the user_id.
-                JSONObject json = (JSONObject) parser.parse(trimmedLine);
-                // If this is the record to update:
-                if (customerObject.getUserId().equals(json.get("user_id"))) {
-                    found = true;
-                    String updatedLine = line;
-                    // Depending on which attribute we're updating, perform validation and regex replacement.
-                    if ("user_name".equals(attributeName)) {
-                        if (!UserOperation.getInstance().validateUsername(value)) {
-                            System.out.println("Invalid username.");
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String trimmedLine = line.trim();
+                if (trimmedLine.isEmpty()) {
+                    lines.add(line);
+                    continue;
+                }
+                try {
+                    // Try to parse the record, so we can check the user_id.
+                    JSONObject json = (JSONObject) parser.parse(trimmedLine);
+                    // If this is the record to update:
+                    if (customerObject.getUserId().equals(json.get("user_id"))) {
+                        found = true;
+                        String updatedLine = line;
+                        // Depending on which attribute we're updating, perform validation and regex replacement.
+                        if ("user_name".equals(attributeName)) {
+                            if (!UserOperation.getInstance().validateUsername(value)) {
+                                System.out.println("Invalid username.");
+                                return false;
+                            }
+                            // Replace the existing user_name value
+                            updatedLine = line.replaceFirst("\"user_name\":\"[^\"]*\"", "\"user_name\":\"" + value + "\"");
+                        } else if ("user_password".equals(attributeName)) {
+                            if (!UserOperation.getInstance().validatePassword(value)) {
+                                System.out.println("Invalid password.");
+                                return false;
+                            }
+                            String encrypted = UserOperation.getInstance().encryptPassword(value);
+                            updatedLine = line.replaceFirst("\"user_password\":\"[^\"]*\"", "\"user_password\":\"" + encrypted + "\"");
+                        } else if ("user_email".equals(attributeName)) {
+                            if (!validateEmail(value)) {
+                                System.out.println("Invalid email.");
+                                return false;
+                            }
+                            updatedLine = line.replaceFirst("\"user_email\":\"[^\"]*\"", "\"user_email\":\"" + value + "\"");
+                        } else if ("user_mobile".equals(attributeName)) {
+                            if (!validateMobile(value)) {
+                                System.out.println("Invalid mobile number.");
+                                return false;
+                            }
+                            updatedLine = line.replaceFirst("\"user_mobile\":\"[^\"]*\"", "\"user_mobile\":\"" + value + "\"");
+                        } else {
+                            System.out.println("Attribute not allowed for update.");
                             return false;
                         }
-                        // Replace the existing user_name value
-                        updatedLine = line.replaceFirst("\"user_name\":\"[^\"]*\"", "\"user_name\":\"" + value + "\"");
-                    } else if ("user_password".equals(attributeName)) {
-                        if (!UserOperation.getInstance().validatePassword(value)) {
-                            System.out.println("Invalid password.");
-                            return false;
-                        }
-                        String encrypted = UserOperation.getInstance().encryptPassword(value);
-                        updatedLine = line.replaceFirst("\"user_password\":\"[^\"]*\"", "\"user_password\":\"" + encrypted + "\"");
-                    } else if ("user_email".equals(attributeName)) {
-                        if (!validateEmail(value)) {
-                            System.out.println("Invalid email.");
-                            return false;
-                        }
-                        updatedLine = line.replaceFirst("\"user_email\":\"[^\"]*\"", "\"user_email\":\"" + value + "\"");
-                    } else if ("user_mobile".equals(attributeName)) {
-                        if (!validateMobile(value)) {
-                            System.out.println("Invalid mobile number.");
-                            return false;
-                        }
-                        updatedLine = line.replaceFirst("\"user_mobile\":\"[^\"]*\"", "\"user_mobile\":\"" + value + "\"");
+                        lines.add(updatedLine);
                     } else {
-                        System.out.println("Attribute not allowed for update.");
-                        return false;
+                        // For records not matching the target user, keep the line unchanged.
+                        lines.add(line);
                     }
-                    lines.add(updatedLine);
-                } else {
-                    // For records not matching the target user, keep the line unchanged.
+                } catch (ParseException e) {
+                    System.err.println("Error parsing JSON: " + e.getMessage());
                     lines.add(line);
                 }
-            } catch (ParseException e) {
-                System.err.println("Error parsing JSON: " + e.getMessage());
-                lines.add(line);
             }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            return false;
         }
-    } catch (IOException e) {
-        System.err.println("Error reading file: " + e.getMessage());
-        return false;
-    }
 
-    if (!found) {
-        System.out.println("Customer not found.");
-        return false;
-    }
-
-    // Write all records (with the updated record) back to the file.
-    try (FileWriter writer = new FileWriter(file, false)) {
-        for (String l : lines) {
-            writer.write(l + System.lineSeparator());
+        if (!found) {
+            System.out.println("Customer not found.");
+            return false;
         }
-        return true;
-    } catch (IOException e) {
-        System.err.println("Error writing file: " + e.getMessage());
-        return false;
-    }
-}
 
+        // Write all records (with the updated record) back to the file.
+        try (FileWriter writer = new FileWriter(file, false)) {
+            for (String l : lines) {
+                writer.write(l + System.lineSeparator());
+            }
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error writing file: " + e.getMessage());
+            return false;
+        }
+    }
 
     /**
      * Deletes a customer record by their user ID.
