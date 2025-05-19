@@ -497,8 +497,75 @@ public class CustomerOperation {
         } catch (IOException e) {
             System.err.println("Error writing file: " + e.getMessage());
         }
-        }
     }
+
+    /**
+     * Finds and returns a Customer object based on the provided customer ID.
+     * <p>
+     * This method reads through the customers file ("assignment/data/users.txt"), which is assumed to contain
+     * one JSON record per line. Each record represents a customer with keys such as "user_id", "user_name",
+     * "user_password", "user_register_time", "user_role", "user_email", and "user_mobile". The method parses
+     * each record and compares its "user_id" with the provided <code>customerId</code>. When a match is found,
+     * a corresponding {@code Customer} is constructed and returned.
+     * </p>
+     * <p>
+     * If no matching customer is found or if an I/O or parsing error occurs, the method returns <code>null</code>.
+     * </p>
+     *
+     * @param customerId the unique identifier of the customer to search for.
+     * @return a {@code Customer} object corresponding to the specified ID, or <code>null</code> if not found.
+     */
+    public Customer findCustomerById(String customerId) {
+        // Create a JSONParser instance to parse JSON strings.
+        JSONParser parser = new JSONParser();
+        
+        // Define the file containing customer JSON records.
+        File file = new File("assignment/data/users.txt");
+        
+        // Use try-with-resources to ensure the Scanner is closed automatically.
+        try (Scanner scanner = new Scanner(file)) {
+            // Process the file line by line.
+            while (scanner.hasNextLine()) {
+                // Read and trim each line.
+                String line = scanner.nextLine().trim();
+                // Skip empty lines.
+                if (line.isEmpty()) {
+                    continue;
+                }
+                try {
+                    // Parse the line into a JSONObject.
+                    JSONObject jsonObj = (JSONObject) parser.parse(line);
+                    // Retrieve the "user_id" from the JSON object.
+                    String id = (String) jsonObj.get("user_id");
+                    // Check if the current record's user_id matches the provided customerId.
+                    if (customerId.equals(id)) {
+                        // Create and return a new Customer instance.
+                        // Adjust the constructor parameters as needed for your Customer class.
+                        return new Customer(
+                            (String) jsonObj.get("user_id"),          // Customer ID
+                            (String) jsonObj.get("user_name"),          // Customer name
+                            (String) jsonObj.get("user_password"),      // Encrypted password
+                            (String) jsonObj.get("user_register_time"), // Registration time
+                            (String) jsonObj.get("user_role"),          // User role (e.g., "customer")
+                            (String) jsonObj.get("user_email"),         // Email address
+                            (String) jsonObj.get("user_mobile")         // Mobile number
+                        );
+                    }
+                } catch (ParseException e) {
+                    // If a parse error occurs, print an error message and continue to the next line.
+                    System.err.println("Error parsing JSON on line: " + line);
+                    System.err.println("ParseException: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            // Print an error message if there's a problem reading the file.
+            System.err.println("Error reading customer file: " + e.getMessage());
+        }
+        
+        // Return null if no matching customer is found.
+        return null;
+    }
+}
 
 
 

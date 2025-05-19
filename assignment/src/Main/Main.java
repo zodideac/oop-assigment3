@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 import IO.IOinterface;
+import Model.Customer;
 import Model.User;
 import Operation.AdminOperation;
 import Operation.CustomerOperation;
@@ -159,10 +160,7 @@ public class Main {
             switch (option) {
                 case "1":
                     // Case 1: Show products (by page number)
-                    System.out.print("Enter page number for product list: ");
-                    int pPage = Integer.parseInt(scanner.nextLine().trim());
-                    ProductListResult pr = ProductOperation.getInstance().getProductList(pPage);
-                    io.showList(adminUser.getUserRole(), "Product", pr.products, pr.currentPage, pr.totalPages);
+                    paginateProductList(adminUser.getUserRole());
                     break;
                 case "2":
                     // Case 2: Add a customer.
@@ -182,21 +180,12 @@ public class Main {
                     break;
                 case "3":
                     // Case 3: Show customers (paginated).
-                    System.out.print("Enter page number for customer list: ");
-                    int cPage = Integer.parseInt(scanner.nextLine().trim());
-                    var cr = CustomerOperation.getInstance().getCustomerList(cPage);
-                    io.showList(adminUser.getUserRole(), "Customer", cr.customers, cr.currentPage, cr.totalPages);
+                    paginateCustomerList(adminUser.getUserRole());
                     break;
                 case "4": 
                     // Case 4: Show orders for admin
-                     System.out.print("Enter page number for order list: ");
-                    int oPage = Integer.parseInt(scanner.nextLine().trim());
-                    // Get the order list result.
-                    OrderListResult orderListResult = OrderOperation.getInstance().getOrderList("all", oPage);
-                    // Now display the list using the currentPage and totalPages from the orderListResult.
-                    io.showList(adminUser.getUserRole(), "Order", orderListResult.orders, orderListResult.currentPage, orderListResult.totalPages);
+                     paginateOrderList(adminUser.getUserRole(), "all");
                     break;
-
                 case "5":
                     // Case 5: Generate test order data.
                     OrderOperation.getInstance().generateTestOrderData();
@@ -312,21 +301,12 @@ public class Main {
                     break;
                 case "3":
                     // Case 3: Show products (paginated).
-                    System.out.print("Enter page number for product list: ");
-                    int pPage = Integer.parseInt(scanner.nextLine().trim());
-                    ProductOperation.ProductListResult pr = ProductOperation.getInstance().getProductList(pPage);
-                    io.showList(customerUser.getUserRole(), "Product", pr.products, pr.currentPage, pr.totalPages);
+                    paginateProductList(customerUser.getUserRole());
                     break;
-               case "4":
-                // Case 4: Display order history.
-                System.out.print("Enter page number for your orders: ");
-                int oPage = Integer.parseInt(scanner.nextLine().trim());
-                // Retrieve the complete OrderListResult (which includes total pages)
-                OrderListResult result = OrderOperation.getInstance().getOrderList(customerUser.getUserId(), oPage);
-                // Use result.totalPages instead of 0
-                io.showList(customerUser.getUserRole(), "Your Order", result.orders, result.currentPage, result.totalPages);
-                break;
-
+                case "4":
+                    // Case 4: Display order history.
+                    paginateOrderList(customerUser.getUserRole(), customerUser.getUserId());
+                    break;
                 case "5":
                     // Case 5: Generate consumption figure.
                     OrderOperation.getInstance().generateSingleCustomerConsumptionFigure(customerUser.getUserId());
@@ -341,6 +321,128 @@ public class Main {
                 default:
                     io.printErrorMessage("Customer Menu", "Invalid option.");
                     break;
+            }
+        }
+    }
+
+    /**
+    * Provides an interactive pagination session for product lists.
+    *
+    * @param userRole  The role of the user (used to choose the display format)
+    */
+    private static void paginateProductList(String userRole) {
+        int currentPage = 1;
+        while (true) {
+            // Retrieve products for the current page
+            ProductListResult pr = ProductOperation.getInstance().getProductList(currentPage);
+            io.showList(userRole, "Product", pr.products, pr.currentPage, pr.totalPages);
+            System.out.println("\nEnter 'n' for next page, 'p' for previous page, or 'b' to go back:");
+            String input = scanner.nextLine().trim().toLowerCase();
+            if (input.equals("n")) {
+                if (currentPage < pr.totalPages) {
+                    currentPage++;
+                } else {
+                    System.out.println("Already at the last page.");
+                }
+            } else if (input.equals("p")) {
+                if (currentPage > 1) {
+                    currentPage--;
+                } else {
+                    System.out.println("Already at the first page.");
+                }
+            } else if (input.equals("b")) {
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter 'n', 'p', or 'b'.");
+            }
+        }
+    }
+
+    /**
+     * Provides an interactive pagination session for customer lists.
+     * After displaying a page, the admin can use:
+     *   - 'n' for next page,
+     *   - 'p' for previous page,
+     *   - 'b' to go back to the menu,
+     *   - or enter a Customer ID to view that customer's details.
+     *
+     * @param userRole The role (e.g., "admin") for display purposes.
+     */
+    private static void paginateCustomerList(String userRole) {
+        int currentPage = 1;
+        
+        while (true) {
+            // Retrieve and display the customer list for the current page.
+            var cr = CustomerOperation.getInstance().getCustomerList(currentPage);
+            io.showList(userRole, "Customer", cr.customers, cr.currentPage, cr.totalPages);
+            
+            // Extend the prompt to allow viewing details by entering a customer ID.
+            System.out.println("\nEnter 'n' for next page, 'p' for previous page, 'b' to go back,");
+            System.out.println("or enter a Customer ID to view details:");
+            String input = scanner.nextLine().trim();
+            
+            // Process navigation commands (use lower-case equals for command letters)
+            if (input.equalsIgnoreCase("n")) {
+                if (currentPage < cr.totalPages) {
+                    currentPage++;
+                } else {
+                    System.out.println("Already at the last page.");
+                }
+            } else if (input.equalsIgnoreCase("p")) {
+                if (currentPage > 1) {
+                    currentPage--;
+                } else {
+                    System.out.println("Already at the first page.");
+                }
+            } else if (input.equalsIgnoreCase("b")) {
+                break; // Exit the pagination session
+            } else {
+                // Assume the user entered a customer ID.
+                // You need to implement/find a method to get a Customer by ID.
+                Customer foundCustomer = CustomerOperation.getInstance().findCustomerById(input);
+                if (foundCustomer != null) {
+                    io.printObject(foundCustomer);
+                    // Optionally, prompt to press enter to return to the list:
+                    System.out.println("\nPress Enter to return to the customer list...");
+                    scanner.nextLine();
+                } else {
+                    System.out.println("Customer with ID \"" + input + "\" not found on this page.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Provides an interactive pagination session for order lists.
+     *
+     * @param userRole  The role of the user.
+     * @param userId    The identifier for which to fetch orders. Use "all" for admin.
+     */
+    private static void paginateOrderList(String userRole, String userId) {
+        int currentPage = 1;
+        while (true) {
+            OrderListResult olr = OrderOperation.getInstance().getOrderList(userId, currentPage);
+            // The header below displays "Order" for admin (userId "all") or "Your Order" for a specific customer.
+            String header = userId.equals("all") ? "Order" : "Your Order";
+            io.showList(userRole, header, olr.orders, olr.currentPage, olr.totalPages);
+            System.out.println("\nEnter 'n' for next page, 'p' for previous page, or 'b' to go back:");
+            String input = scanner.nextLine().trim().toLowerCase();
+            if (input.equals("n")) {
+                if (currentPage < olr.totalPages) {
+                    currentPage++;
+                } else {
+                    System.out.println("Already at the last page.");
+                }
+            } else if (input.equals("p")) {
+                if (currentPage > 1) {
+                    currentPage--;
+                } else {
+                    System.out.println("Already at the first page.");
+                }
+            } else if (input.equals("b")) {
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter 'n', 'p', or 'b'.");
             }
         }
     }
